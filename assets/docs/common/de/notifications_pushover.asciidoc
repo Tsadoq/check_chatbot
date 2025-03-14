@@ -1,0 +1,52 @@
+// -*- coding: utf-8 -*-
+// IGNORE aushebeln
+include::global_attr.adoc[]
+= Benachrichtigungen per Pushover
+:revdate: 2020-08-14
+:title: Benachrichtigungen per Pushover (notifications)
+:description: Sie können Benachrichtigungen von {CMK} über den Dienst Pushover an Apple- und Android-Mobilgeräte senden lassen. Wie Sie die Anbindung durchführen, erfahren Sie hier.
+
+{related-start}
+xref:notifications#[Benachrichtigungen]
+{related-end}
+
+
+link:https://pushover.net/[Pushover^] ist ein einfacher Dienst, um Meldungen aus unterschiedlichsten Quellen an Apple- oder Android-Mobilgeräte zu senden, wo sie dann als Benachrichtigungen auftauchen.
+Auf dem Desktop lassen sich die Meldungen über den Browser empfangen.
+Die Anbindung erfolgt über zwei API-Schlüssel für eine Gruppe und eine App/Quelle.
+
+
+[#config_pushover]
+== Pushover konfigurieren
+
+In Pushover müssen Sie sowohl eine Gruppe anlegen, auch wenn Sie nur eine „Gruppe“ haben, als auch eine App explizit für {CMK} -- beide bekommen eigene API-Schlüssel:
+
+. Legen Sie in Pushover eine neue Gruppe mit mindestens einem Mitglied über [.guihint]#Create a Group# an.
+. Kopieren Sie den angezeigten Gruppen-API-Schlüssel.
+. Erstellen Sie eine App mit beliebigem Namen über [.guihint]#Create an Application/API Token.#
+. Kopieren Sie den angezeigten App-API-Schlüssel.
+
+
+[#config_checkmk]
+== {CMK} konfigurieren
+
+Wie Sie Benachrichtigungen im Allgemeinen in {CMK} einrichten, haben Sie bereits im Artikel über xref:notifications#[Benachrichtigungen] erfahren.
+
+In {CMK} genügt es nun, die beiden oben kopierten Schlüssel anzugeben:
+
+. Erstellen Sie eine neue Benachrichtigungsregel mit [.guihint]#Setup > Events >  Notifications > Add rule.#
+. Wählen Sie als [.guihint]#Notification Method# den Eintrag [.guihint]#Push Notifications (using Pushover).#
+. Tragen Sie unter [.guihint]#API Key# den kopierten App-API-Schlüssel ein.
+. Tragen Sie unter [.guihint]#User / Group Key# den kopierten Gruppen-API-Schlüssel ein:
++
+image::notifications_pushover.png[alt="Die Einstellungen zur Benachrichtigungsmethode für Pushover."]
+
+Optional können Sie hier noch die Pushover-Funktionen [.guihint]#Priority# und [.guihint]#Select sound# aktivieren.
+Über die Priorität dürfen Sie zum Beispiel in Pushover konfigurierte Ruhezeiten aushebeln -- und derartige Benachrichtigungen dann auch mit passenden Tönen untermalen.
+
+Bei der Kontaktauswahl im folgenden Kasten [.guihint]#Contact selection# beachten Sie die folgenden beiden Punkte:
+
+include::include_ticketsystem.asciidoc[]
+
+Wie Sie die neue Benachrichtigungsmethode testen können, erfahren Sie im Artikel zu den xref:notifications#notification_testing[Benachrichtigungen.]
+

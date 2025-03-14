@@ -1,0 +1,231 @@
+// -*- coding: utf-8 -*-
+// IGNORE 
+include::global_attr.adoc[]
+= Managing licenses
+:revdate: 2024-05-02
+:title: Managing licenses - collect and send license information
+:description: In this article you will learn how to handle the licensing of the software in {CMK} and how to collect and transmit information about the current licence state.
+
+
+==  Introduction
+
+{cee-only}
+If you use one of the commercial editions, i.e. {CSE}, {CME} or {CCE} (exceeding the limits of the "Free" license state: 750 services, one site), you are obliged to regularly provide an overview of the use of {CMK} in your organization to {comfull}.
+
+Following the initial setup -- and in the case of {CE} the import of a suitable license at the end of the trial period (license state "Trial") -- {CMK} can do the rest of this administrative work for you.
+
+Every day at a random time {CMK} collects the current service numbers for all connected {CMK} sites.
+These numbers are displayed clearly and transparently in the license usage.
+
+{CMK} stores this collected information for a period of 400 days. Older data will be deleted.
+
+An administrator of {CMK} leaves the communication with the {CMK} customer portal entirely to {CMK}, both for licensing and for the transmission of usage information.
+If this is not technically possible for you, as an alternative the communication can be carried out manually.
+
+
+[#generate_application_password]
+== Reading subscription data from the customer portal
+
+Go to the link:https://portal.checkmk.com/[{CMK} customer portal^].
+Log in there with your credentials to create the [.guihint]#Licensing Credentials#, which you will need to enter into {CMK} in the next step.
+
+*Note:* With the purchase of a {CMK} edition you have received the credentials for the {CMK} customer portal.
+If you do not have these (anymore), please contact the link:https://checkmk.com/contact[{CMK} Sales department^].
+
+Select your subscription.
+The display of license information will then look like this, for example:
+
+image::license_subscription.png[alt="A icense subscription display in the customer portal."]
+
+*Note:* If the highlighted buttons are not visible, your user account may not have the appropriate rights in the {CMK} customer portal.
+In such a case, contact the administrator responsible for license renewal in your organization.
+
+Now click [.guihint]#Generate Licensing Credentials# to create the password for the transmission.
+
+image::license_generate_password.png[alt="Create a password in the customer portal.", width=78%]
+
+Copy the [.guihint]#Licensing ID# and the [.guihint]#Password# and close this window with [.guihint]#Confirm#.
+
+
+[#license_cce]
+== Licensing {CE} and {ME}
+
+Once the trial period has expired, at the beginning of the first license phase, you must submit a verification request to the link:https://portal.checkmk.com/[{CMK} customer portal^] and obtain a suitable license key.
+This license key is stored in {CMK}. At the same time, upload the verification response to {CMK}. With these two steps you license your {CE} or {ME} and unlock it for further use.
+
+This of course only applies for {CE} if you have exceeded the limits of the "Free" license state.
+Otherwise you can continue to use your {CE} in the "Free" license state without needing to obtain a license.
+
+
+[#setup_cce]
+=== Entering subscription data into {CMK}
+
+As a xref:wato_user#roles[{CMK} administrator], open [.guihint]#Setup > Maintenance > Licensing#.
+This page will be empty if no subscription data has been stored yet.
+
+image::license_licensing_ce_ausschnitt.png[alt="The 'Edit settings' button to open the subscription settings page."]
+
+Use the [.guihint]#Edit settings# button to open the page with the same name:
+
+image::license_edit_settings_ce.png[alt="Form to enter license usage settings."]
+
+Now choose whether you want to submit the subscription information online or offline.
+We recommend using the online submission option. {CMK} can then take care of all further licensing procedures for you.
+For online submission, first complete the [.guihint]#Licensing ID# and [.guihint]#Password# fields with the xref:generate_application_password[information from the customer portal].
+
+Finally, click [.guihint]#Save# to store your information.
+
+
+[#submit_usage_cce]
+=== Submitting license usage information to Checkmk GmbH/Inc.
+
+As a user of {CE} or {ME}, have {CMK} transfer your license information via online communication.
+You will only need to xref:manualtrans[transmit the license data manually] if for technical reasons the {CMK} server in your organization cannot access the {CMK} customer portal. 
+
+Your license information is transparent for you to view at any time.
+The information you see on the [.guihint]#License usage# and [guihint]#Edit settings# pages will be used.
+
+The licensing credentials must have been deposited in {CMK} before the first transmission (see xref:setup_cce[enter subscription data in {CMK}]).
+
+If you have chosen the online transfer method, click on the active [.guihint]#Online verification# button.
+You will then receive a message verifying a successful transmission in {CMK}.
+
+image::license_online_success_cce.png[alt="Display of submitted license information."]
+
+This is the first time you have enabled your {CE} / {ME} for licensed use.
+
+From now on, {CMK} will regularly report your current license usage to Checkmk GmbH/Inc.
+Following each successful transfer, you will see a confirmation as well as a summary of the information transferred.
+As a part of this process, {CMK} will also automatically fetch new license information from the {CMK} customer portal if you have extended or renewed your license in the meantime.
+
+You can initiate a resynchronization of your data with the {CMK} customer portal at any time by clicking the [.guihint]#Online verification# button.
+
+
+=== License verification
+
+What happens when the period of validity for your license is approaching expiration?
+A sequence of various escalation levels begins to take effect.
+As soon as a new license has been uploaded, the escalation sequence stops.
+
+Only the runtime of the license is checked.
+At the same time, however, your monitoring continues to run normally, and notifications are also sent regularly.
+However, in the event of a violation of the agreed license policy the 'Activate changes' function in {CMK} will be disabled.
+An overrun of the currently licensed services and modules, on the other hand, is only recorded and invoiced retroactively with the next billing.
+
+The following escalation levels currently apply:
+
+* 30 days before a license expires, {CMK} sends an email to the administrators to inform them of the upcoming license expiration. 
+* 14 days before the license expires, {CMK} sends another email to the administrators. At the same time, a reminder banner will be visible to the administrators in {CMK}.
+* 7 days before the license expires {CMK} sends a further email to the administrators. In addition, a reminder banner is now permanently visible in {CMK} for all users.
+* After a grace period, {CMK} blocks the the ability to activate changes, as described above. The reminder banner will remain permanently visible to all users.
+
+If your {CMK} is in a blocked state, contact {CMK} sales who will be able to assist you.
+
+
+== Licensing {SE}
+
+If you start with {SE}, you initially simply activate your license.
+The transmission of the usage data only starts at the end of the first license period.
+
+
+[#setup_cee]
+=== Entering subscription data into {CMK}
+
+As a xref:wato_user#roles[{CMK} administrator], open [.guihint]#Setup > Maintenance > Licensing.#
+This page will be empty if no subscription data has been stored yet.
+
+image::license_licensing_ausschnitt.png[alt="The 'Edit settings' button to open the subscription settings page."]
+
+Use the [.guihint]#Edit settings# button to open the page with the same name:
+
+image::license_edit_settings.png[alt="Form to enter license usage settings."]
+
+Now choose whether you want to submit the subscription information online or offline.
+We recommend using the online submission option. {CMK} can then take care of all further licensing procedures for you.
+For online submission, first complete the [.guihint]#Licensing ID# and [.guihint]#Password# fields with the xref:generate_application_password[information from the customer portal].
+
+Finally, click [.guihint]#Save# to store your information.
+
+[#submit_usage_cee]
+=== Submitting license usage information to Checkmk GmbH/Inc.
+
+Once set, {CMK} does most of the work of transferring your license information online.
+The data transfer only needs to be triggered once at the beginning and end of each valid usage period.
+You will only need to xref:manualtrans[transmit the license data manually] if for technical reasons the {CMK} server in your organization cannot access the {CMK} customer portal. 
+
+Your license information can be viewed transparently at any time.
+The information shown on the [.guihint]#License usage# and [guihint]#Edit settings# pages is used.
+
+The [.guihint]#Licensing credentials# must be stored in {CMK} before the first transfer (see xref:setup_cee[Entering subscription data into {CMK}]).
+
+If you have decided to submit online (the corresponding button is active), click [.guihint]#Submit license usage online#.
+{CMK} will take care of the rest and there will be no further work for you during the entire usage period.
+After each successful transfer you will receive a confirmation and a summary of the transferred information.
+The license data summary will look like this, for example:
+
+image::license_online_success_cee.png[alt="Display of transferred license information."]
+
+You have now successfully submitted the usage data for the first license period to Checkmk GmbH/Inc..
+
+From now on, at the end of a license period, submit the respective license usage data to the {CMK} customer portal by clicking [.guihint]#Submit license usage online#.
+Whenever the contract has been renewed or amended, get the new license information back into {CMK} with [.guihint]#Submit license usage online#.
+
+
+== Displaying license usage information
+
+Once the license has commenced, {CMK} will start displaying the license related information in the form of a colored chart.
+
+If license management has been running for at least two full days, you will see a graph of this type:
+
+image::license_usage.png[alt="Graphical overview of current license usage."]
+
+The various colored graphic elements provide the following information:
+
+* The red line shows the current contracted license limit.
+This makes it easy to see if the number of services has been exceeded.
+* The light blue line shows the average number of services per month.
+This smooths out peaks caused, for example, by a misconfiguration.
+* The dark blue line shows for each day the total number of monitored services across all connected sites.
+* The green column shows the average service count in the current month.
+* The yellow column shows the first month in which the license limit has been exceeded.
+* The purple column shows the month with the highest license overrun.
+
+In a table below this graphic, an overview of the services and hosts as they are reported to {comfull} is shown:
+
+image::license_usage_unten.png[alt="Overview of services and hosts in the various states."]
+
+In licensing, a distinction is made between:
+
+[cols="30,~"]
+|===
+
+|Licensable services / hosts |Number of services or hosts that are included in the license size calculation.
+|Excluded services / hosts |Services or hosts that are not included in the license size. These are e.g. services / hosts that are only used for internal testing scenarios within your organization. To mark services or hosts as excluded, set labels of type `cmk/licensing:excluded` according to the description in xref:labels#create_labels[Creating labels].
+|Shadow services/hosts |Services or hosts that are created automatically and for technical reasons as xref:distributed_monitoring#cmcdump[shadow services or hosts]. These are not included in the license calculation.
+|Cloud services / hosts |Cloud-based services or hosts that are used for the calculation of the license size.
+|===
+
+
+[#manualtrans]
+== Manual transfer
+
+If for technical reasons you are compelled to manually upload your licensing information to the customer portal, do so as follows:
+
+Open [.guihint]#Setup > Maintenance > Licensing#.
+Then click on the icon:icon_assume_0[alt="Icon for offline transfer of license data."] [.guihint]#Offline verification# button in {CE}, or [.guihint]#Submit license usage offline# in the other commercial editions.
+
+One of the following pages will be opened:
+
+.Offline verification of the license in {CE}
+image::license_offline_verification.png[alt="Page for offline verification of license information in {CE}.", width=85%]
+
+.Offline submission of license information in {SE}
+image::license_offline_submission.png[alt="Page for offline submission of license information in {SE}.", width=85%]
+
+Follow the instructions on this page.
+First download the requested data from {CMK}.
+Next, upload the associated file to the customer portal.
+Finally, upload the response file received to {CMK} to complete the process.
+
+*Note* that in a xref:glossar#distributed_monitoring[distributed monitoring] environment, you will need to run transmissions _to_ the customer portal as well as those _from_ the customer portal, not only on the central site, but also on all remote sites.
+For a xref:glossar#central_setup[distributed monitoring with central setup], all licensing is handled by the central site.

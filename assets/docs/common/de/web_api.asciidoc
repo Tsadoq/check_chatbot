@@ -1,0 +1,23 @@
+// -*- coding: utf-8 -*-
+// REDIRECT-PERMANENT rest_api
+include::global_attr.adoc[]
+= Konfiguration via HTTP-API
+:revdate: 2023-02-20
+:title: Konfiguration via HTTP-API
+:description: Die {CMK} HTTP-API (oder Web-API) ist eine Schnittstelle, um {CMK} über HTTP zu konfigurieren - und dieser Artikel führt in die Nutzung dieser API ein.
+
+
+== Neue Inhalte
+
+Die Web-API (auch HTTP-API genannt) wurde mit der Version {v22} aus {CMK} entfernt.
+Die Web-API wird durch die REST-API ersetzt.
+Sie werden zum aktuellen Artikel xref:rest_api#[Die {CMK} REST-API] weitergeleitet.
+
+
+++++
+<script>
+var newurl = window.location.href.replace('web_api.html', 'rest_api.html');
+window.location.replace(newurl);
+</script>
+++++
+

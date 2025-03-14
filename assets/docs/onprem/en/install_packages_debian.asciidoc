@@ -1,0 +1,216 @@
+// -*- coding: utf-8 -*-
+include::global_attr.adoc[]
+= Installation on Debian and Ubuntu
+:revdate: 2024-02-08
+:title: Installation on Debian and Ubuntu
+:description: Learn how to install {CMK} on the Linux distribution of Debian and of Ubuntu.
+
+{related-start}
+xref:intro_setup#[Setting up {CMK}]
+xref:appliance_install_virt1#[Installation of the virtual appliance]
+xref:install_packages#[Basic information on the installation of {CMK}]
+{related-end}
+
+
+[#package_sources]
+== Setting up the package sources
+
+Minimal installations of Debian or Ubuntu may not contain all of the required package sources for the installation of {CMK}.
+Compare the following minimum requirements with the entries in your `/etc/apt/sources.list`, or the contents of the `/etc/apt/sources.list.d` directory.
+Our examples use multi-line notation and access the central mirror server.
+Unless otherwise specified, the same requirements apply to older versions and to _STS versions (Short Term Support)_.
+In this case, simply replace the code name.
+Update the local package index after checking or adapting the package sources:
+
+[{shell}]
+----
+{c-root} apt update
+----
+
+
+[#debian]
+=== Debian
+
+In Debian, all packages required by {CMK} are contained in the `main` component.
+In some cases {CMK} requires certain security updates, so the `security` repository is also required.
+The update repository is recommended but not mandatory.
+Stability updates are provided here earlier than for the dot releases.
+The following minimal examples of an `/etc/apt/sources.list` therefore work:
+
+[discrete]
+[#debian11]
+==== Debian 11 _Bullseye_
+
+./etc/apt/sources.list
+[{file}]
+----
+deb http://deb.debian.org/debian/ bullseye main
+deb https://security.debian.org/debian-security bullseye-security main
+# deb http://deb.debian.org/debian bullseye-updates main
+----
+
+[discrete]
+[#debian12]
+==== Debian 12 _Bookworm_
+
+./etc/apt/sources.list
+[{file}]
+----
+deb http://deb.debian.org/debian/ bookworm main
+deb https://security.debian.org/debian-security bookworm-security main
+# deb http://deb.debian.org/debian bookworm-updates main
+----
+
+[#ubuntu]
+=== Ubuntu
+
+Ubuntu requires at least the two components `main` and `universe`.
+In some cases {CMK} requires certain security updates, so the `security` repositories are also required.
+The update repositories are recommended but not mandatory.
+Stability updates are provided here earlier than for the dot releases.
+This results in the following examples of the `/etc/apt/sources.list`:
+
+[discrete]
+[#ubuntu2004]
+==== Ubuntu 20.04 _Focal Fossa_
+
+./etc/apt/sources.list
+[{file}]
+----
+deb http://archive.ubuntu.com/ubuntu/ focal main
+deb http://archive.ubuntu.com/ubuntu/ focal universe
+deb http://archive.ubuntu.com/ubuntu focal-security main
+deb http://archive.ubuntu.com/ubuntu focal-security universe
+# deb http://archive.ubuntu.com/ubuntu/ focal-updates main 
+# deb http://archive.ubuntu.com/ubuntu/ focal-updates universe
+----
+
+[discrete]
+[#ubuntu2204]
+==== Ubuntu 22.04 _Jammy Jellyfish_
+
+./etc/apt/sources.list
+[{file}]
+----
+deb http://archive.ubuntu.com/ubuntu/ jammy main
+deb http://archive.ubuntu.com/ubuntu/ jammy universe
+deb http://archive.ubuntu.com/ubuntu jammy-security main
+deb http://archive.ubuntu.com/ubuntu jammy-security universe
+# deb http://archive.ubuntu.com/ubuntu/ jammy-updates main 
+# deb http://archive.ubuntu.com/ubuntu/ jammy-updates universe
+----
+
+
+[#download]
+== Download the appropriate packages
+
+First choose the xref:intro_setup#editions[{CMK} edition] that suits your needs.
+On the link:https://checkmk.com/download[download page^] you will find {RE}, which is Open Source, and {CE}, which is free to use for up to 750 services. 
+If you have a subscription, then you will find the installation packages in the link:https://portal.checkmk.com/[customer portal^].
+
+We recommend the use of the _latest stable {CMK} version_.
+If you need an older version (for example, as the basis for restoring a backup), you can find it in the link:https://checkmk.com/download/archive[download archive^].
+Make sure that the package you select exactly matches the installed Linux distribution and its version.
+
+After you have downloaded the package, bring it to the Linux system on which {CMK} is to be installed.
+This can be done, for example, via the `scp` command line tool, which comes with every modern system -- and which is also available in PowerShell on Windows 10.
+Additional programs such as _WinSCP_ are usually not required.
+
+The `openssh-server` package needs to be installed to be able to copy files to your future {CMK} server using the `scp` command.
+If that is not already the case, you can install this using the following command:
+
+[{shell}]
+----
+{c-root} apt install openssh-server
+----
+
+Once this has been done you can, for example, copy the {CRE} package for Ubuntu 22.04 _Jammy Jellyfish_ using the below command:
+
+[{shell-raw}]
+----
+{c-root} scp check-mk-raw-2.3.0p1_0.jammy_amd64.deb root@mymonitoring.mydomain.org:/tmp
+----
+
+
+[#signed]
+== Signed package installation
+
+All packages are signed using link:https://gnupg.org[GnuPG^].
+Through the use of this signature, on the one hand it can be verified whether the package really is from {CMK}, and on the other hand it can be verified that the package is complete.
+
+Depending on which optional packages were installed during the setup of your distribution, you will need to install `dpkg-sig` including all of its dependencies for successful verification. 
+To do so, simply enter the following command:
+
+[{shell}]
+----
+{c-root} apt install dpkg-sig
+----
+
+So that these signed packages can be installed in the usual way, as a one time only action you will need to import our public key so that the signature will be trusted.
+First, load the key directly from our website:
+
+[{shell-raw}]
+----
+{c-root} wget https://download.checkmk.com/checkmk/Check_MK-pubkey.gpg
+----
+
+Then import the key to the list of trusted signatures.
+Under Debian and Ubuntu the following command is required:
+
+[{shell}]
+----
+{c-root} gpg --import Check_MK-pubkey.gpg
+----
+
+Once the key has been added, you can verify the {CMK} package using the following command:
+
+[{shell}]
+----
+{c-root} dpkg-sig --verify check-mk-raw-2.3.0p1_0.jammy_amd64.deb
+----
+
+In some installations the signature check can fail with the following error:
+
+[{shell}]
+----
+BADSIG _gpgbuilder
+----
+
+If this is the case, the most probable cause is that the installed version of `dpkg-sig` does not know how to handle the package's compression format.
+In this situation revert to `gpg` to verify the signature:
+
+[{shell-raw}]
+----
+{c-root} gpg --verify check-mk-raw-2.3.0p1_0.jammy_amd64.deb
+gpg: Signature made Tue Apr 18 11:52:52 2023 CEST
+gpg:                using RSA key B1E7106575B723F00611C612434DAC48C4503261
+gpg: Good signature from "Check_MK Software Release Signing Key (2018) <feedback@check-mk.org>" [unknown]
+gpg:                 aka "Check_MK Software Daily Build Signing Key (2018) <feedback@check-mk.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: B1E7 1065 75B7 23F0 0611  C612 434D AC48 C450 3261
+----
+
+The warning generated here is only regarding the {CMK} public key, not for the signature on the package itself.
+The reason for this is that the key has not been signed by any other key the user already trusts -- but this is not a problem in this case.
+
+Afterwards you can install the {CMK} package using the following command.
+Be sure to pass the full file path to the DEB file after `apt install`:
+
+[{shell}]
+----
+{c-root} apt install /tmp/check-mk-raw-2.3.0p1_0.jammy_amd64.deb
+----
+
+
+== Final test
+
+After the successful installation of {CMK}, and all of its  dependencies, you will have access to the `omd` command.
+With this command you are able to create and manage xref:omd_basics#[monitoring sites].
+You can request the installed version to verify your installation:
+
+[{shell}]
+----
+{c-root} omd version
+OMD - Open Monitoring Distribution Version 2.3.0p1.cre
+----

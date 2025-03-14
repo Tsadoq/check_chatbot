@@ -1,0 +1,77 @@
+// -*- coding: utf-8 -*-
+include::global_attr.adoc[]
+= Benachrichtigungen per Slack
+:revdate: 2025-02-03
+:title: Benachrichtigungen per Slack (notifications)
+:description: Sie können Benachrichtigungen von {CMK} an den Instant-Messaging-Dienst Slack senden lassen. Wie Sie die Anbindung durchführen, erfahren Sie hier.
+
+{related-start}
+xref:notifications#[Benachrichtigungen]
+{related-end}
+
+
+Über den Messenger link:https://slack.com/[Slack^] können Sie Benachrichtigungen einfach über einen Webhook empfangen.
+Das funktioniert sowohl auf selbst gehosteten oder gemieteten Servern, als auch über den kostenlosen öffentlichen Slack-Dienst.
+
+
+[#config_slack]
+== Slack konfigurieren
+
+Um Webhooks zu aktivieren und einen neuen Webhook zu erstellen, müssen Sie zunächst eine Slack App erstellen.
+Melden Sie sich bei Slack an und erstellen Sie einen _Workspace._
+Gehen Sie dann wie folgt vor:
+
+. Erstellen Sie über link:https://api.slack.com/messaging/webhooks[diesen Link^] eine neue App über die Slack-API.
+. Vergeben Sie einen beliebigen Namen und wählen Sie Ihren Workspace.
+. Im nächsten Dialog wählen Sie als Funktion der App [.guihint]#Incoming Webhook.#
+. Aktivieren Sie anschließend Webhooks, indem Sie den Schalter auf [.guihint]#on# setzen.
+. Erstellen Sie den Webhook über den Knopf [.guihint]#Add New Webhook to Workspace.#
+. Legen Sie zum Abschluss den Channel (Gruppe) fest, in den die App senden soll, und bestätigen Sie die Rechteanfrage.
+
+Zum Testen bekommen Sie nach Abschluss eine `curl`-Anweisung, die _Hello World_ in den gewünschten Channel sendet.
+Kopieren Sie die Webhook-URL und wechseln Sie zu {CMK}.
+
+
+[#config_checkmk]
+== {CMK} konfigurieren
+
+Wie Sie Benachrichtigungen im Allgemeinen in {CMK} einrichten, haben Sie bereits im Artikel über xref:notifications#[Benachrichtigungen] erfahren.
+
+In {CMK} genügt es nun, die oben kopierte URL anzugeben:
+
+// FIXME 2.4.0 SaaS: GUI notifications overhaul
+ifdef::onprem[]
+. Erstellen Sie eine neue Benachrichtigungsregel mit [.guihint]#Setup > Events >  Notifications > Add notification rule.#
+. Wählen Sie als [.guihint]#Notification method (plug-in) > Notification effect# den Eintrag [.guihint]#Slack or Mattermost.#
+. Öffnen Sie mit [.guihint]#Create# das Formular zur Eingabe für die Parameter.
+. Geben Sie unter [.guihint]#Parameter properties# die kopierte Webhook-URL ein, die mit `https://` beginnen muss:
++
+image::notifications_slack_parameter.png[alt="Die Parameter-Einstellungen zur Benachrichtigungsmethode für Slack und Mattermost."]
+endif::[]
+ifdef::saas[]
+. Erstellen Sie eine neue Benachrichtigungsregel mit [.guihint]#Setup > Events >  Notifications > Add rule.#
+. Wählen Sie als [.guihint]#Notification Method# den Eintrag [.guihint]#Slack or Mattermost.#
+. Geben Sie die kopierte Webhook-URL ein:
++
+image::notifications_slack.png[alt="Die Einstellungen zur Benachrichtigungsmethode für Slack und Mattermost."]
++
+endif::[]
+Statt die URL hier direkt einzugeben, können Sie diese auch aus dem xref:password_store#[Passwortspeicher] auslesen -- sofern sie vorher dort hinterlegt wurde.
+
+Optional dürfen Sie URL-Präfixe angeben, um Links auf Ihre {CMK}-GUI innerhalb der Benachrichtigung zu steuern.
+
+// FIXME 2.4.0 SaaS: GUI notifications overhaul
+ifdef::onprem[]
+Kehren Sie mit einem Klick auf [.guihint]#Save# in den Hauptteil der Benachrichtigungskonfiguration zurück.
+
+Bei der Kontaktauswahl im folgenden Abschnitt [.guihint]#Recipient# beachten Sie die folgenden beiden Punkte:
+endif::[]
+
+ifdef::saas[]
+Bei der Kontaktauswahl im folgenden Kasten [.guihint]#Contact selection# beachten Sie die folgenden beiden Punkte:
+endif::[]
+
+include::include_ticketsystem.asciidoc[]
+
+Wie Sie die neue Benachrichtigungsmethode testen können, erfahren Sie im Artikel zu den xref:notifications#notification_testing[Benachrichtigungen.]
+

@@ -1,0 +1,171 @@
+// -*- coding: utf-8 -*-
+// IGNORE 
+include::global_attr.adoc[]
+= Getting started with {CE}
+:revdate: 2025-02-24
+:title: Getting started with {CE}
+:description: You can get access to {CE} (SaaS) in no time at all. Here we show you the very first steps with {CE}.
+
+{related-start}
+xref:cce#[{CE} (SaaS)]
+xref:admin_panel#[The admin panel]
+{related-end}
+
+
+This article describes how to register for the 14-day test period ('Trial') in order to test {CE} (SaaS) during this period without obligation.
+
+[TIP]
+====
+Note that the trial has the following restrictions, among others:
+A maximum of 2500 services can be monitored.
+At the end of the 14-day trial period, the {CMK} xref:glossar#site[site] is automatically deleted.
+Incidentally, this automatic deletion of the site will also apply if you license {CE} (SaaS) within the 14-day trial period.
+====
+
+
+[#signup_trial]
+== Registration
+
+The procedure to begin a trial of {CE} (SaaS) is straightforward, and only requires you to enter an email address, a password, and then receive the verification code sent to you by email.
+To get started, open the link:https://checkmk.com/product/checkmk-cloud-saas[{CE} (SaaS) product page^] on the {CMK} website and click on [.guihint]#Start free trial#
+-- or take the shortcut via link:https://admin.checkmk.cloud/[https://admin.checkmk.cloud/^].
+
+image::intro_signup_trial_saas.png[alt=“Dialog box to register for the {CE} (SaaS) trial.”,width=74%]
+
+Enter your business email address in the registration dialog box shown above.
+This email address will be your user name that you will later use to log in to {CE}.
+
+[TIP]
+====
+Whenever it is clear that there will be no confusion with link:https://docs.checkmk.com/master/de/cce.html[{CE} (Self-hosted)^] -- as in this Beginner's Guide -- when discussing {CE} (SaaS) we will simply call it {CE}.
+====
+
+Note and read the linked documents and then click [.guihint]#Start free trial.#
+
+image::intro_password_saas.png[alt=“Dialog box for entering the password for the e-mail address.”,width=74%]
+
+In the above dialog box you are asked to enter a password.
+{CE} checks how strong the password is and -- by asking link:https://haveibeenpwned.com/[Have I Been Pwned^] in the background -- whether the password has already been compromised.
+You will receive feedback below the input field.
+
+Continue by clicking on [.guihint]#Next: Verify account#.
+You will then receive an email from `no-reply@mail.checkmk.cloud` with the subject `Checkmk Cloud: Verify your account` and a 6-digit verification code as content.
+Enter this code in the following dialog box and send it:
+
+image::intro_verificationcode_saas.png[alt=“Dialog box for entering the verification code.”,width=74%]
+
+If everything is correct, you will receive a confirmation message:
+
+image::intro_continue_to_login_saas.png[alt=“Dialog box to change to login.”,width=74%]
+
+With [.guihint]#Continue to login# you can then proceed to the initial login.
+
+
+[#login_first]
+== The first login
+
+image::intro_login_saas.png[alt=“Login dialog box.”,width=74%]
+
+Log in to this dialog box with the login data you provided during registration.
+
+In the next two dialog boxes, you will be asked for some basic information.
+These are used to get to know you better and to determine the name for the first {CMK} xref:glossar#site[site] that will be automatically created for you later.
+These two dialogs are only displayed following the very first login:
+
+image::intro_create_site_saas.png[alt=“Dialog box for entering the instance name.”,width=74%]
+
+Enter the name of your organization at the top, the name of the site to be created -- in the example this is called `mysite`, and your time zone at the bottom.
+The name of the organization cannot be changed later.
+This will be used in {CE} as the _tenant_ name and you will encounter it again later in the {CE} web interface.
+
+You can enter additional information in the following dialog:
+
+image::intro_additional_info_saas.png[alt=“Dialog box for entering additional information.”,width=74%]
+
+Click on [.guihint]#Create Checkmk site# to end the dialogs for preparation and to start the creation of the site.
+This can take a few minutes, which is also shown in the message that is displayed until the creation process has been completed:
+
+image::intro_message_creating_site_saas.png[alt=“Message while the site creation is running.”,width=74%]
+
+The short wait will soon be over and you will next see the {CE} user interface (GUI):
+
+image::intro_welcome_saas.png[alt="The {CE} user interface with the topic in the onboarding guide for creating the first host."]
+
+At this point the actual user interface will only be visible dimmed in the background.
+In the foreground you will see a topic in the _onboarding guide_, which will be explained in more detail in the next section.
+This topic provides instructions for how you can add your first xref:glossar#host[host] to the monitoring of {CE} in just a few steps.
+Using {CMK} without hosts is only moderately exciting, because without something to monitor, you cannot really see what {CMK} can do.
+
+You should now take advantage of the opportunity to add your first host to the monitoring by following the instructions in the onboarding guide.
+In this guide for beginners, however, we will first introduce some important components of the user interface.
+We will then come back to the creation of that first host in the xref:intro_setup_monitor#[chapter after the next].
+We promise.
+
+Use [.guihint]#Close# to close the modal dialog for the onboarding guide and switch to the {CMK} user interface.
+If you already know {CMK} from an _on-premises_ edition, the user interface will look very familiar to you.
+However, you will find access to two elements that are only available in {CE}: the onboarding guide, which we have just mentioned, and the admin panel.
+
+
+[#onboarding_guide]
+== The onboarding guide
+
+[{image-left}]
+image::intro_getting_started_button_saas.png[width=80]
+
+The onboarding guide in {CE} anchors access to helpful information directly in the user interface.
+You can open it on any {CMK} page by clicking the green [guihint]#Getting started# button located on the right side of the user interface (and not on the left, as in this User Guide).
+The onboarding guide opens by hovering over the GUI from the right-hand side.
+
+This guide contains topics covering the most important configuration tasks in {CMK}, e.g. creating hosts, customizing xref:glossar#service[services] or setting up xref:glossar#notification[notifications].
+The topics are written in such a way that you can reach your goal quickly.
+They contain specific instructions that you can execute directly in the GUI.
+You can often open the corresponding page in {CMK} directly by clicking on a link in the topic without having to navigate through the GUI manually.
+
+The topics in the onboarding guide focus more on the 'the how' and less on the 'the why'.
+If you are looking for more detailed and explanatory information, you will find it, as usual with {CMK}, in the {CE} User Guide.
+
+In addition to the topics written exclusively for the tasks in {CE}, the onboarding guide offers a very useful search function in the top line, with which you can quickly search through the most important sources for {CMK} and {CE}: the onboarding guide itself, the {CE} User Guide, the video tutorials and the {CMK} forum.
+
+image::intro_onboarding_guide_saas.png[alt=“The onboarding guide start page.”,width=90%]
+
+[TIP]
+====
+The topic for creating the first host, which was shown after the xref:login_first[first login], can be brought back to the foreground by clicking on [.guihint]#Add hosts > Command Line Download & Install#.
+====
+
+Close the opened onboarding guide by again clicking on the green [.guihint]#Getting started# button.
+The context will be retained so that you can continue where you left off when you reopen it.
+If the green button obstructs your view of elements of the user interface, you can also (temporarily) hide it.
+In the xref:user_interface#user_menu[User menu] you will find the appropriate entry for this.
+
+
+[#admin_panel]
+== The admin panel
+
+[{image-left}]
+image::intro_navbar_admin_button_saas.png[width=80]
+
+During the xref:signup_trial[registration] you entered, among other things, your email address, which serves as your user name, and the name for the site that was subsequently created automatically.
+If you are wondering where these entries ended up in {CE}, the answer is: in the admin panel.
+
+The admin panel is the central point for managing sites, users and licenses in {CE}.
+Here you will find all of the configuration options that are specific to {CE}, and which are therefore not accessible in the {CMK} user interface.
+
+You open the admin panel by clicking on [.guihint]#Admin# in the xref:glossar#navigation_bar[navigation bar].
+
+.The {CE} admin panel
+image::intro_admin_panel_saas.png[alt=“The admin panel with the overview of the sites.”]
+
+The admin panel also has a navigation bar on the left-hand side.
+A click on [.guihint]#Sites# shows the sites set up in {CE}.
+Similarly, a click on [.guihint]#User management# displays a table with all users.
+The user table currently only contains one user with the name of the email address you entered and the assigned role [.guihint]#Administrator#.
+
+A detailed description of the admin panel functions can be found in the xref:admin_panel#[article of the same name].
+One more note at this point:
+In the table row for a site, you will find the [.guihint]#Site details# entry in the [.guihint]#More# menu on the far right.
+This entry opens a dialog box in which you will find, among other things, the URL with which you can call up the site's {CMK} interface directly -- without having to go through the admin panel.
+
+From the admin panel, switch to the site's {CMK} interface by clicking on the site name (in our example `mysite`).
+
+You should do this now, because xref:intro_gui#[we will now continue with the {CMK} interface].

@@ -1,0 +1,800 @@
+// -*- coding: utf-8 -*-
+// IGNORE % p27 × RabbitMQ
+include::global_attr.adoc[]
+= Update auf Version 2.4.0
+:revdate: draft
+:title: Update auf Version 2.4.0
+:description: Was es beim Update von {CMK} Version 2.3.0 auf 2.4.0 zu beachten gibt, erfahren Sie in diesem Artikel.
+
+{related-start}
+xref:update#[Updates und Upgrades]
+xref:install_packages#[Grundsätzliches zur Installation von {CMK}]
+{related-end}
+
+
+[#intro]
+== Einleitung
+
+In diesem Artikel finden Sie die wichtigsten Themen, die für das Update Ihrer {CMK}-Version {v23} auf {v24} relevant sind.
+
+Wir empfehlen Ihnen, vor dem Update den kompletten Artikel durchzulesen, damit Sie genau wissen, was auf Sie zukommt: vor, während und nach dem Update.
+
+[TIP]
+====
+_Work in progress:_
+Dieser Artikel ist bis zur Veröffentlichung der finalen Version von {CMK} {v24} einem beständigen Wandel unterworfen.
+Wir hoffen, bereits zu Beginn der Beta-Phase die wichtigsten Themen abgedeckt zu haben.
+Sollte etwas fehlen, melden Sie bitte link:https://github.com/Checkmk/checkmk-docs/issues[via GitHub eine Issue].
+Eine link:../en/update_major.html[englischsprachige Version dieses Artikels] ist ebenfalls erhältlich.
+Diese ist in Teilen automatisch übersetzt und nicht immer auf dem Stand der deutschen Version.
+====
+
+[#prep]
+== Vorbereitungen
+
+In diesem Kapitel erhalten Sie die Übersicht der Themen, um die Sie sich kümmern sollten, bevor Sie das Update durchführen.
+Wahrscheinlich wird nicht jedes der Themen für Sie relevant sein:
+Bei einem solchen können Sie intern einen Haken setzen und sich gleich das nächste Thema vornehmen.
+
+
+[#backup]
+=== Backup
+
+Wie vor jedem Update einer produktiven Software sollten Sie auch vor dem von {CMK} die Aktualität Ihrer Backups prüfen.
+
+*Betrifft Sie das?*
+Ja.
+
+*Was müssen Sie tun?*
+Wenn Sie Ihre Backups automatisiert über [.guihint]#Setup > Maintenance > Backups# erstellen, prüfen Sie dort, ob die letzten Backup-Aufträge fehlerfrei durchgelaufen sind.
+
+Weitere Informationen finden Sie in den Artikeln zu xref:backup#[Backups] und zum Thema xref:omd_basics#omd_backup_restore[Instanzen sichern und wiederherstellen.]
+
+[TIP]
+====
+Seit dem Update auf {v23} werden Änderungen bei einem fehlgeschlagenen Update zurückgerollt (link:https://checkmk.com/de/werk/16408[Werk pass:q[#]16408^]).
+Fehlschlagen kann ein Update durch einen unerwarteten internen Fehler, aber auch durch Benutzereingabe während des Update-Prozesses, zum Beispiel durch Auswahl der Menüoption `abort` oder durch Drücken der Tastenkombination `CTRL+C`.
+Erst, wenn der Text `Completed verifying site configuration. Your site now has version {v24}pX` angezeigt wird, ist die aktualisierte Konfiguration aktiv.
+Die Wiederherstellung der Konfiguration ersetzt kein Backup, reduziert aber meist die Ausfallzeit, wenn etwas schief läuft.
+====
+
+// MFS: Is there a significant change?
+// TK: KNW-1695 - Point to increased memory consumtion mit verlinktem CMK-21100 (ich versteh leider kein Wort...)
+[#performance]
+=== Hardware-Auslastung überprüfen
+
+{CMK} {v24} erfordert in einigen Bereichen höhere Systemressourcen als {v23}.
+Daher ist es ratsam, vor dem Update zu ermitteln, welche freien Kapazitäten für {CMK} verwendete Server noch haben. 
+// MA: Ich würde hier noch etwas Kontext erwarten, weshalb mehr Systemressourcen benötigt werden. Soweit ich das verstehe, haben wir das zugunsten von Performance-Vorteilen getan. Mehr Performance bei gleichem oder mehr Funktionsumfang haben wir über mehr Ressourcenbedarf "erkauft".
+
+*Betrifft Sie das?*
+Ja. Allerdings hängt es stark von der Art der Nutzung von {CMK} ab, wie stark sie betroffen sind.
+
+*Was müssen Sie tun?*
+Stellen Sie sicher, dass genügend freie Kapazitäten vorhanden sind.
+Eine etwas höhere Prozessorlast ist bei Verwendung vieler aktiver Checks zu erwarten.
+Andere Bereiche konnten im Gegenzug optimiert werden, was in vielen Fällen zu einer Reduzierung der Prozessorlast führt.
+Als Faustregel gilt: Liegt die _CPU load_ unter _Zahl der Prozessorkerne × 0,8_ und die CPU utilization unter 70{nbsp}%, sind keine Probleme zu erwarten.
+Die Arbeitsspeichernutzung von {CMK} {v24} ist verglichen mit {v23} etwa 30{nbsp}% höher.
+Bei Verwendung von Piggyback im verteilten Monitoring benötigt der Message Broker RabbitMQ weiteren zusätzlichen Arbeitsspeicher und CPU Ressourcen.
+Gleiches gilt für den Open Telemetry Receiver.
+Der Bedarf an Festplattenplatz steigt mit {CMK} {v24} um bis zu 5{nbsp}MB pro Host, die direkt nach dem Update belegt werden.
+
+
+[#linux_versions]
+=== Linux-Distributionsversionen
+
+In der {CMK} Version {v24} werden einige veraltete Distributionen nicht mehr unterstützt werden.
+
+*Betrifft Sie das?*
+Das betrifft Sie, wenn auf Ihrem {CMK}-Server eine der folgenden – in der {v23} noch unterstützten – Linux-Distributionen installiert ist:
+
+* Debian 10
+* SLES 12 SP5
+* Ubuntu 20.04
+
+*Was müssen Sie tun?*
+Führen Sie vor dem Update von {CMK} zuerst ein xref:release_upgrade#[Versions-Upgrade der Linux-Distribution] durch.
+Achten Sie darauf, dass die Zielversion der Linux-Distribution von {CMK} {v23} *und* {v24} unterstützt wird.
+Welche Linux-Distributionsversionen {CMK} unterstützt, erfahren Sie in der xref:update_matrix#[Update-Matrix für {v24}] und auf der link:https://checkmk.com/de/download[Download-Seite^] nachdem Sie die {CMK}-Version und Ihre Linux-Distribution ausgewählt haben.
+
+Kurz nach Erscheinen von Red Hat Enterprise Linux 10 werden wir Pakete von {CMK} {v23} und {v24} für diese Distributionsversion bereitstellen.
+Dies erlaubt es Ihnen, zunächst auf die neueste Patch-Version von {CMK} {v23} zu aktualisieren, dann das Update von Red Hat Enterprise Linux 9 nach 10 durchzuführen und hier schließlich auf die neueste Patch-Version von {CMK} {v24} zu aktualisieren.
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#sles_php]
+=== PHP auf SLES 15 SP3/SP4
+
+Mit {CMK} Version {v23} (und {v22}p21) wird unter SUSE Linux Enterprise Server 15 Service Pack 3 und 4 die Abhängigkeit zur Laufzeitumgebung der Programmiersprache PHP von Version 7 auf Version 8 angehoben.
+
+*Betrifft Sie das?*
+Ja, als Nutzer von SLES 15 SP3/SP4. Das Update ist etwas aufwendiger, da Paketquellen für die veraltete Version 7 deaktiviert und für die neue Version 8 aktiviert werden müssen.
+
+*Was müssen Sie tun?*
+Falls Sie neben {CMK} Anwendungen auf Ihrem Server nutzen, welche die Programmiersprache PHP verwenden, stellen Sie vorbereitend sicher, dass diese problemlos mit PHP 8 zurecht kommen.
+Bereiten Sie dann das bereits für das Update auf {v22}p21 (oder höher), welches für die Installation von {CMK} {v23} obligatorisch ist, die Änderung der Paketquellen vor, wie sie in link:https://checkmk.com/de/werk/16025[Werk pass:q[#]16025^] beschrieben wird.
+////
+
+[#browser]
+=== Browser-Unterstützung
+
+{CMK} {v24} nutzt neue JavaScript-Funktionen, die in älteren Browsern nicht zur Verfügung stehen.
+Welche Browser in welchen Versionen unterstützt werden, steht in den xref:release_notes#browser[Release notes.]
+
+*Betrifft Sie das?*
+In der Regel werden Sie auf Desktop-Systemen automatische Updates auf die neueste Version aktiviert haben.
+
+*Was müssen Sie tun?*
+Prüfen Sie die verwendete Browser-Version und installieren Sie gegebenenfalls einen aktuelleren Browser.
+Wenn Sie für die Anzeige von Dashboards _Single Board Computer_, _Smart TVs_ oder _Digital Signage_ Lösungen verwenden, auf deren Systembrowser Sie keinen Einfluss haben, testen Sie vor dem Update, ob benötigte Dashboards korrekt angezeigt werden.
+Kontaktieren Sie gegebenenfalls den Hardware-Hersteller für Updates.
+
+[TIP]
+====
+Falls Sie link:https://www.mozilla.org/en-US/firefox/enterprise/[Firefox ESR^] benutzen, warten Sie bitte mit dem Update von {CMK}, bis Sie Firefox von link:https://whattrainisitnow.com/calendar/[Version 128 auf 140^] aktualisiert haben.
+Firefox ESR 140 wird ab Ende Juni bereitstehen und ab Ende September die einzig unterstützte ESR-Version sein.
+====
+
+[#automation_login]
+=== Authentifizierung per GET-Parameter
+
+Bis {CMK} {v22} konnte jeder xref:glossar#automation_user[Automationsbenutzer] mit per GET-Parameter übergebenen Benutzernamen und Passwort angemeldet werden.
+Diese Möglichkeit wurde ab {CMK} {v23} zurückgefahren, um schließlich ganz abgeschafft zu werden (link:https://checkmk.com/de/werk/16223[Werk pass:q[#]16223^]).
+Mittelfristig müssen Sie daher Skripte oder automatische Logins auf Authentifizierung per HTTP-Header umstellen.
+
+Zunächst machte {v23} die Möglichkeit des Logins per GET-Parameter konfigurierbar.
+Die globale Einstellung [.guihint]#Automation user authentication via HTTP parameters# verwendete jedoch als Standard [.guihint]#on#.
+In {CMK} {v24} wechselt der Standard dann zu [.guihint]#off#.
+
+*Betrifft Sie das?*
+Auch diese Änderung betrifft vor allem Nutzer, die für die Anzeige von Dashboards _Single Board Computer_, _Smart TVs_ oder _Digital Signage_ Lösungen ohne angeschlossene Tastatur verwenden.
+
+*Was müssen Sie tun?*
+Falls Sie automatisches Login per GET-Parameter verwenden, müssen Sie die globale Einstellung [.guihint]#Automation user authentication via HTTP parameters# auf  [.guihint]#on# ändern.
+Da die Möglichkeit des Logins per GET-Parameter mit {CMK} {v25} ganz wegfallen wird, sollten Sie das Login solcher Dashboards auf `Basic Auth` umstellen (beispielsweise per Browser-Erweiterung).
+
+
+[#ntopng56_deprecation]
+=== ntopng 5.6 und älter werden nicht mehr unterstützt
+
+{CMK} {v23} ist die letzte Version, die xref:ntop#[ntopng] in den Versionen 5.x _und_ 6.x unterstützt (link:https://checkmk.com/de/werk/16483[Werk pass:q[#]16483^]).
+Mit {CMK} {v24} wird die Unterstützung für ntopng 5.x eingestellt und nur noch ntopng 6.x unterstützt.
+
+*Betrifft Sie das?*
+Diese Änderung betrifft Nutzer der kommerziellen Editionen, welche die Integration mit ntopng verwenden.
+
+*Was müssen Sie tun?*
+Aktualisieren Sie vor dem Update von {CMK} auf {v24} Ihre ntopng-Installationen auf 6.x.
+
+
+[#run_api_integrations]
+=== Änderungen bei der Ausführung von Spezialagenten
+
+Sind für einen Host xref:glossar#special_agent[Spezialagenten] konfiguriert, werden in {CMK} {v24} _alle_ diese Spezialagenten ausgeführt.
+In früheren Versionen wurde nur _ein_ Spezialagent ausgeführt, und zwar der erste in der alphabetischen Sortierung.
+
+*Betrifft Sie das?*
+Diese Änderung ist nur relevant für Hosts, in deren Eigenschaften das Attribut [.guihint]#Checkmk agent / API integrations# auf [.guihint]#API integrations if configured, else Checkmk agent# gesetzt ist.
+Es ist möglich, dass Sie versehentlich Regeln erstellt haben, die Hosts mehr Spezialagenten zugeordnet haben als benötigt.
+Diese zusätzlichen Regeln wurden bisher ignoriert, wenn sie alphabetisch hinter dem ersten lagen.
+Beispiel: Sie haben Regeln für `agent_acme` und Regeln für `agent_cyberdyne` erstellt und diese Regeln durch eine kleine Nachlässigkeit denselben Hosts zugeordnet.
+In {CMK} {v24} wird nun nicht nur `agent_acme` sondern auch `agent_cyberdyne` für diese Hosts ausgeführt.
+
+*Was müssen Sie tun?*
+Bei Verwendung von Spezialagenten, die auf APIs zugreifen, die Kosten verursachen können oder in ein _Rate Limiting_ laufen, müssen Sie _vorbereitend_ aktiv werden und die korrekte Zuordnung sicherstellen.
+Achten Sie auch bei Spezialagenten, die eine hohe CPU-Last oder viel Netzwerkverkehr verursachen, auf korrekte Zuordnung.
+Bedenken Sie auch, dass durch falsche Zuordnung von Spezialagenten bei Hosts plötzlich Services auftauchen, die dort nicht hingehören.
+
+
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#openssl]
+=== SSL-Kompatibilität
+
+{CMK} {v23} liefert erstmals OpenSSL in Version 3.0 statt bisher 1.1 mit.
+Diese Änderung hat Auswirkungen auf fast alle Komponenten, welche _Secure Socket Layer_ oder _Transport Level Security_ nutzen.
+
+*Betrifft Sie das?*
+Da OpenSSL 3 mittlerweile eine weite Verbreitung erlangt hat, sind kaum Überraschungen zu erwarten.
+Zu Problemen – vor allem bei aktiven Checks – kann es kommen, wenn Verbindungen zu Geräten hergestellt werden sollen, die alte _Ciphers_ erwarten oder _Renegotiation_ versuchen.
+Meist handelt es sich um alte Netzwerkgeräte (Switches, Drucker...), die keine Updates mehr erhalten.
+In einigen Fällen sind ältere Dienste auf Linux-Distributionen oder Unix-Versionen betroffen, die immer noch mit Updates versorgt werden.
+
+*Was müssen Sie tun?*
+Versuchen Sie möglichst im Vorfeld, Geräte ausfindig zu machen, bei denen Probleme zu erwarten sind.
+Gute Indikatoren hierfür sind Alter und wie lange Updates zurück liegen.
+Testen Sie diese Geräte mit {CMK} {v23}.
+Treten Probleme auf, haben Sie zwei Möglichkeiten:
+
+. Prüfen Sie, ob Updates oder Konfigurationsänderungen möglich sind.
+Gerade ältere, aber noch unterstützte Betriebssysteme erlauben oft, ältere Default-Einstellungen mit sichereren modernen Einstellungen zu überschreiben.
+
+. Ist dies nicht möglich, können die betroffenen aktiven Checks über die Regel [.guihint]#Integrate Nagios plugins# manuell für andere Default-Einstellungen konfiguriert werden.
+Eine detaillierte Anleitung bereiten wir gerade vor.
+Bei Bedarf können Sie eine Vorabversion per Help Desk Beta oder im Forum anfragen.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#cme]
+=== {ME} basiert auf {CE}
+
+Mit {CMK} {v23} wechselt {ME} die Basis von {SE} zu {CE}.
+Dies bedeutet nicht nur, dass {ME} den erweiterten Funktionsumfang von {CE} erhält, sondern auch, dass das Lizenzmanagement an das von {CE} angeglichen wird.
+
+*Betrifft Sie das?*
+Dies betrifft nur Benutzer von {ME}, andere Formen des verteilten Monitorings sind nicht betroffen.
+
+*Was müssen Sie tun?*
+Das Update von {ME} auf {v23} folgt der generellen xref:update_distributed_monitoring[Prozedur in verteilten Umgebungen mit zentralem Setup.]
+// TK: Der obige Link zeigt auf einen Abschnitt, in dem es aber gar nicht um zentrales Setup geht.
+Allerdings muss sichergestellt sein, das die Zentralinstanz noch unter {CMK} {v22} die Lizenzinformationen an bereits auf {CMK} {v23} aktualisierte Remote-Instanzen übertragen kann.
+
+Da die notwendigen Änderungen erst in {CMK} {v22}p17 (link:https://checkmk.com/de/werk/16193[Werk pass:q[#]16193^]) implementiert sind, müssen Sie folglich die Zentralinstanz mindestens auf diese Version aktualisieren.
+Damit ist die Übertragung der xref:license#license_cce[Lizenzinformationen] sichergestellt.
+Anschließend können die Remote-Instanzen auf {v23} aktualisiert werden und abschließend die Zentralinstanz.
+
+Unabhängig von der hier genannten Mindestanforderung an die {v22}p17 empfehlen wir, auf allen beteiligten Instanzen zuerst das Update auf die letzte verfügbare Patch-Version der {v22} durchzuführen  und erst dann mit dem Update auf {v23} zu beginnen.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#agentupdaterhash]
+=== Automatische Agenten-Updates von Versionen vor {v22}p8
+
+{CMK} {v23} erstellt keine SHA1-Signaturen für Agentenpakete mehr.
+Die Prüfung von SHA256-Signaturen wurde mit Checkmk {v22}p8 eingeführt.
+Damit Agenten-Updates auf Version {v23} automatisch stattfinden können, müssen die Agenten vorher auf Version {v22}p8 oder höher aktualisiert werden.
+
+*Betrifft Sie das?*
+Dies betrifft Sie, wenn Sie automatische Agenten-Updates durchführen, aber Patch-Versionen des Agenten gelegentlich auslassen.
+Es betrifft Sie außerdem, wenn Ihr Deployment vorbereitete Betriebssystem-Images verwendet, die den {CMK} Agent Updater mit ausliefern und sich auf automatische xref:agent_deployment#automatic_installer[Installation/Aktualisierung] verlassen.
+
+*Was müssen Sie tun?*
+Stellen Sie sicher, dass alle Agenten, die automatisch aktualisiert werden sollen, mindestens auf Version {v22}p8 aktualisiert wurden.
+Überprüfen Sie insbesondere vorbereitete Betriebssystem-Images und aktualisieren Sie den dort vorhandenen Agenten ebenfalls auf Version {v22}p8 oder höher.
+Und wenn Sie gerade mit Agenten-Updates beschäftigt sind, können Sie bereits jetzt das per Agentenbäckerei ausgelieferte xref:agentupdatercert[Zertifikat hinzufügen,], sofern dieses später nötig ist.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#agentlinux]
+=== Der Linux-Agent
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#agentwindows]
+=== Der Windows-Agent: Deprecated Plugins
+
+Einige Plugins, die als _deprecated_ markiert waren, wurden entfernt und erfordern gegebenenfalls manuelle Installation, falls diese noch benötigt werden. Details erläutert link:https://checkmk.com/de/werk/16359[Werk pass:q[#]16359^].
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#pythonwindows]
+=== Der Windows-Agent: Python 3.4 entfernt
+
+Der offizielle Support für den {CMK}-Agenten unter Windows Server 2008 und Windows 7 durch die {comfull} endete bereits mit der Veröffentlichung von {CMK} {v22}.
+Dennoch war der Betrieb unter Windows Server 2008 R2 und Windows 7 ohne Einschränkungen weiter möglich.
+Mit {v23} sind Einschränkungen in Kauf zu nehmen:
+Die bisherige Möglichkeit, per Regel der Agentenbäckerei eine Python 3.4 Laufzeitumgebung für Windows-Agenten mitzuliefern fällt in {v23} weg.
+
+*Betrifft Sie das?*
+Hoffentlich nicht: Der Wegfall betrifft Sie nur, wenn Sie in Python geschriebene xref:glossar#agent_plugin[Agentenplugins] auf Windows Server 2008 R2 oder Windows 7 (beide End of Life bereits in 2020) nutzen.
+Auf allen neueren Windows-Versionen laufen aktuelle Python-Versionen.
+Auf allen noch älteren Windows-Versionen – wie Windows Server 2008 R1 oder Windows Vista – konnte der Agent bereits in Version {v22} nicht mehr benutzt werden.
+
+*Was müssen Sie tun?*
+Wenn Sie diese Windows-Systeme weiterhin überwachen wollen, müssen Sie Laufzeitumgebung für Agentenplugins, die Python benötigen, selbst bereitstellen:
+Installieren Sie auf betroffenen Systemen Python 3.4 manuell.
+Stellen Sie für diese Systeme in der Regel [.guihint]#Setup > Agents > Windows, Linux, Solaris, AIX > Agent rules > Windows modules > Install Python runtime environment# die Einstellung [.guihint]#Install Python runtime environment > Installation# auf [.guihint]#Never install Python with the agent#.
+Beachten Sie, dass wir für derart alte Windows-Systeme keinen Support garantieren können und neue Agentenversionen in Patch-Versionen nicht mehr testen.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#mod_auth_mellon]
+=== {CMK} ohne Apache-Modul mod_auth_mellon
+
+link:https://github.com/latchset/mod_auth_mellon[`mod_auth_mellon`^] ist ein Software-Modul für Apache, das Dienste zur Authentifizierung (_authentication_) über Secure Assertion Markup Language (SAML) bereitstellt.
+Die Anbindung an SAML-Authentifizierungsdienste war in {CMK} {v22} auf zwei Arten möglich:
+Auf Apache-Ebene mit `mod_auth_mellon` (bis Version {v21} die einzig unterstützte Möglichkeit) oder in den kommerziellen Editionen von {CMK} die xref:saml#saml_cee[eingebaute SAML-Authentifizierung.]
+Mit Version {v23} wird `mod_auth_mellon` nicht mehr mit der {CMK}-Software ausgeliefert.
+
+*Betrifft Sie das?*
+Dies betrifft Sie, wenn Sie die SAML-Authentifizierung mit `mod_auth_mellon` nutzen.
+
+*Was müssen Sie tun?*
+Nutzer der kommerziellen Editionen sollten _vor_ dem Update auf {v23} die SAML-Authentifizierung auf die in {CMK} integrierte Lösung umstellen.
+
+Falls Sie {RE} benutzen, können Sie bereits vor dem Update systemweit `mod_auth_mellon` nach der link:https://github.com/latchset/mod_auth_mellon[Anleitung auf der Projektseite^] installieren.
+Stellen Sie dann die Zeile zum Laden des Moduls in der Konfigurationsdatei `~/etc/apache/conf.d/auth.conf` auf den systemweiten Installationspfad um.
+Das Installationsverzeichnis kann je nach verwendeter Distribution variieren:
+
+[{apache}]
+----
+LoadModule auth_mellon_module /usr/lib/apache2/modules/mod_auth_mellon.so
+----
+
+Starten Sie Ihre Instanz nach der Änderung neu.
+Testen Sie schließlich – noch unter {v22} – ob die SAML-Authentifizierung weiterhin funktioniert.
+Ist dies der Fall, sind nach dem Update keine Schwierigkeiten zu erwarten.
+////
+
+
+// TK: Nur mal so: Dieser Abschnitt ist perfekt: Problembeschreibung ist klar. Was zu tun ist auch und mit dem verlinkten Abschnitt unten ist das eine wirklich runde Sache.
+[#pip3]
+=== Python-Module deinstallieren
+
+{CMK} {v24} aktualisiert Python auf 3.12.3.
+Diese Aktualisierung betrifft in einer Instanz nachinstallierte Module.
+In vielen Fällen sind nachinstallierte Module mit Python 3.12.3 inkompatibel.
+Schlimmstenfalls überschreiben veraltete Module Funktionalität der von {CMK} mitgelieferten Module.
+
+*Betrifft Sie das?*
+Dies betrifft Sie nur, wenn Sie für selbst geschriebene oder aus der Exchange bezogene Spezialagenten oder agentenbasierte Check-Plugins explizit Python-Module nachinstalliert haben.
+Wenn Sie unsicher sind, führen Sie die im folgenden Schritt beschriebene Prüfung durch.
+
+*Was müssen Sie tun?*
+Finden Sie zunächst heraus, ob und – wenn ja –, welche Python-Module in der Instanz installiert sind.
+Suchen Sie hierfür die Verzeichnisse `dist-info` und `egg-info`:
+
+[{shell}]
+----
+{c-omd} find ~/local/lib/python3/ -type d -name '*.*-info'
+local/lib/python3/cryptography-41.0.5.dist-info
+local/lib/python3/ecdsa-0.18.0.dist-info
+----
+
+Notieren Sie die installierten Module und deinstallieren Sie diese anschließend:
+
+[{shell}]
+----
+{c-omd} pip3 uninstall cryptography ecdsa
+----
+
+Wie Sie mit deinstallierten Python-Modulen nach dem Update umgehen, erfahren Sie weiter xref:pip3post[unten.]
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#prometheus]
+=== Prometheus-Checks Datenquelle und Einstellungen
+
+Der xref:monitoring_prometheus#[Prometheus-Spezialagent] bot `kube-state-metrics` als Datenquelle, dessen Checks nicht mehr unterstützt werden.
+Diese wurden mittlerweile durch verbesserte Gegenstücke im Kubernetes-Agenten ersetzt (siehe link:https://checkmk.com/de/werk/14572[Werk pass:q[#]14572^]).
+Zudem wurden in den Regeln [.guihint]#Prometheus# und [.guihint]#Alertmanager# die Angabe von IP-Adresse/Host-Name, Port und Pfadpräfix durch ein einziges Eingabefeld [.guihint]#Custom URL# abgelöst (siehe link:https://checkmk.com/de/werk/14573[Werk pass:q[#]14573^]).
+
+In beiden Fällen funktionierte das alte Verfahren weiterhin in {v22}.
+Zur Verwendung in {v23} müssen Sie jedoch Ihre Konfiguration auf das neue Verfahren umgestellt haben.
+////
+
+[#local_files]
+=== Paketierte (MKPs) und nicht paketierte lokale Dateien
+
+Mit lokalen Dateien können Sie die von {CMK} bereitgestellte Funktionalität anpassen und erweitern.
+Diese Dateien befinden sich im lokalen Teil der Instanzverzeichnisstruktur, d.h. in `~/local` und können in Erweiterungspaketen organisiert sein oder einfach so „herumliegen“.
+Lokale Dateien können bei einem Update Probleme bereiten, wenn sie nicht mehr zur neuen {CMK}-Version passen.
+
+*Betrifft Sie das?*
+Da es für {CMK} bei einem Update nicht möglich ist, die Kompatibilität von lokalen Anpassungen vollständig sicherzustellen, sollten Sie Ihre {CMK}-Instanz vor einem Update daraufhin überprüfen, ob lokale Dateien bei Ihnen verwendet werden, welche das sind und wie sie organisiert sind.
+
+*Was müssen Sie tun?*
+
+////
+[IMPORTANT]
+====
+*Verlust von Einstellungen droht!* 
+Beim Update der Major-Version löscht {CMK} Regeln, die nicht mehr benötigt werden.
+Falls Sie Pakete _vor_ dem Update deinstallieren, um _nach_ dem Update eine neue Version zu installieren, gehen möglicherweise noch benötigte Einstellungen verloren.
+Installieren Sie stattdessen neue und alte Pakete parallel und entfernen Sie alte erst nach dem Update.
+====
+////
+
+. Erstellen Sie mit `mkp list` einen Überblick über vorhandene xref:mkps#[Erweiterungspakete (MKPs)] und deren Quellen:
+Ihre selbst entwickelten Erweiterungen können Sie meist leicht testen und gegebenenfalls anpassen.
+Bei extern bezogenen MKPs sollten Sie recherchieren, ob bekannte Probleme mit {CMK} {v24} vorhanden sind und neue Versionen vorliegen.
+In Fällen, in denen bisher vom MKP bereitgestellte Funktionalität nun von  {CMK} {v24} bereitgestellt wird, deaktivieren Sie das Paket vor dem Update.
+
+. Verschaffen Sie sich einen xref:mkps#find_unpackaged[Überblick] über _nicht paketierte_ lokale Dateien Ihrer {CMK}-Instanz, indem Sie als Instanzbenutzer das Kommando `mkp find` ausführen.
+Tauchen hier Pfade mit `python3` auf, gehen Sie noch einmal xref:pip3[nach oben zu den Python-Modulen].
+Für alle weiteren Dateien gilt: Fassen Sie zusammen gehörende Dateien in xref:mkps#package_mkp[MKPs zusammen.]
+Dies erleichtert später die Deaktivierung _en bloc_, sollten nach dem Update Inkompatibilitäten festgestellt werden.
+
+. Im Falle von MKPs, die für {CMK} {v23} und {v24} unterschiedliche Versionen erfordern, sollten Sie vor dem Update xref:mkps#enabled_inactive_cli[beide Paketversionen mit korrekten Kompatibilitätsinformationen] in {CMK} installiert haben.
+Wenn verschiedene Versionen eines Paketes vorhanden sind, aktiviert {CMK} beim Update automatisch die passende Version.
+Da Zentralinstanzen mit {CMK} {v23} Pakete für {v24} vorhalten und an Remote-Instanzen verteilen können, hilft dieses Feature zudem beim Update in einem xref:glossar#central_setup[verteilten Monitoring mit zentralem Setup].
+
+
+
+[#apis]
+=== Programmierschnittstellen
+
+Bereits in {CMK} {v23} wurden einige Programmierschnittstellen (APIs), die in älteren Versionen  _ad-hoc_ definiert waren, durch versionierte, wohl spezifizierte ersetzt.
+Die älteren APIs konnten parallel weiter genutzt werden.
+// TK: Ich hab im folgenden Absatz das Werk ausgetauscht (16259 > 17201). 17201 verlinkt ausserdem 16259.
+// TK: In 17201 steht, dass die alten Plugins nicht mehr geladen werden. Dass ist für mich härter als Deine Formulierung. Aber entscheide Du :-)
+Mit {CMK} {v24} werden keine Maßnahmen mehr getroffen, Kompatibilität zu den alten APIs zu bewahren (link:https://checkmk.com/de/werk/17201[Werk pass:q[#]17201^]).
+Das bedeutet, dass Plugins, welche die alten APIs nutzen, mit {CMK} {v24} nicht mehr funktionieren werden.
+
+*Betrifft Sie das?*
+Das Thema APIs betrifft Sie, wenn Sie die mit {CMK} ausgelieferten um Ihre eigenen, selbst geschriebenen Checks erweitert haben und/oder wenn Sie Plugins aus anderen Quellen nutzen.
+
+*Was müssen Sie tun?*
+Überprüfen Sie selbst geschriebene Erweiterungen und solche von Drittanbietern auf die Verwendung der aktuellen APIs (`cmk.agent_based.v2`,  `cmk.server_side_calls.v1`, `cmk.graphing.v1` und `cmk.rulesets.v1`).
+Werden die älteren, nicht versionierten APIs oder `cmk.agent_based.v1` verwendet, migrieren Sie diese auf die neuen APIs und die neue Ordnerstruktur.
+Informationen zur Migration finden Sie in link:https://checkmk.com/de/werk/16259[Werk pass:q[#]16259^] und in den xref:devel_intro#[Artikeln zur Entwicklung von Check-Plugins].
+// TK: In devel_intro gibt es nichts zur Migration. Link ersetzen durch devel_check_plugins.html#migration
+Zudem stellen wir link:https://github.com/Checkmk/checkmk/tree/master/doc/treasures/migration_helpers[Skripte^] bereit, die bei der Migration helfen können.
+
+
+[#rest_api]
+=== Abkündigungen in der REST-API
+
+Abgekündigte Endpunkte oder Parameter der {CMK} REST-API werden in der API-Dokumentation mit dem Symbol icon:icon_rest_api_deprecated[alt="Symbol zur Anzeige einer Abkündigung in der REST-API-Dokumentation] gekennzeichnet.
+
+*Betrifft Sie das?*
+Das kann Sie betreffen, wenn Sie die {CMK} REST-API zum Beispiel in eigenen Skripten nutzen.
+
+*Was müssen Sie tun?*
+Öffnen Sie die REST-API-Dokumentation mit [.guihint]#Help > Developer resources > REST API documentation.#
+Suchen Sie im Browser auf der Seite nach `Deprecated`, überprüfen Sie, ob Sie abgekündigte Elemente in Ihren Skripten verwenden, und ersetzen Sie diese vor dem Update.
+In der REST-API-Dokumentation finden Sie gewöhnlich Hinweise, wie Sie die in der neuen Version nicht mehr existierenden Funktionen ersetzen können.
+
+
+[#incompatible]
+=== Inkompatible Änderungen
+
+Wie in jeder {CMK} Version, so gibt es auch in der aktuellen Version {v24} Änderungen der Software – bei {CMK} in sogenannten _Werks_ organisiert und dokumentiert –, die Rückwirkungen auf ihre {CMK}-Installation haben _können_.
+Eine sogenannte _inkompatible Änderung_ erfordert, dass Sie manuelle Anpassungen durchführen, um bestehende Funktionen weiterhin wie gewohnt ablaufen zu lassen und/oder neue Funktionen nutzen zu können.
+
+*Betrifft Sie das?*
+In aller Regel wird es inkompatible Änderungen geben, die auch Ihre {CMK}-Installation betreffen.
+Eine generelle Aussage ist aber leider unmöglich.
+In diesem Artikel haben wir diejenigen Themen zusammengetragen, die für alle oder die meisten {CMK}-Installationen zutreffen.
+Es kann aber sein, dass es darüber hinaus weitere, für Sie relevante Änderungen gibt, zum Beispiel bei Checks, die Sie in Ihrer Installation verwenden.
+
+*Was müssen Sie tun?*
+Nach jedem Update – auch solchen auf Patch-Versionen – zeigt Ihnen {CMK} Anzahl und Inhalt der inkompatiblen Änderungen und fordert Sie auf, diese zu prüfen und zur Kenntnis zu nehmen.
+Vor dem Update ist der richtige Zeitpunkt, liegen gebliebene Änderungen der Version {v23} darauf hin abzuklappern, welche Auswirkungen diese auf das Update haben können.
+Seit {CMK} {v23} werden solche Werks nämlich nicht mehr weiter geschleppt, sondern beim Update nach Zustimmung in einem Bestätigungsdialog gelöscht (link:https://checkmk.com/de/werk/15292[Werk #15292^]).
+
+Es ist zudem eine gute Idee, sich bereits *vor* dem Update einen Überblick über die inkompatiblen Änderungen der Version {v24} zu verschaffen:
+Öffnen Sie die Liste der link:https://checkmk.com/de/werks?search=&cmk_version$$[$$$$]$$=2.4&compatible=0[Werks^] auf der {CMK}-Webseite.
+In der Beschreibung eines Werks finden Sie Hinweise, was gegebenenfalls zu tun ist, um die Änderung kompatibel zu machen.
+
+Nachdem Sie das xref:update[Update] durchgeführt haben, werden Ihnen in der {CMK}-Oberfläche Anzahl und Inhalt der inkompatiblen Änderungen angezeigt, und Sie werden aufgefordert, diese zu prüfen und zur Kenntnis zu nehmen.
+Bei der Prüfung helfen Links, so dass Sie mit wenigen Klicks herausfinden können, ob Sie eine betroffene Komponente nutzen.
+Ist sichergestellt, dass ein Werk keine Auswirkungen hat oder Sie haben benötigte Änderungen vorgenommen, bestätigen Sie es mit [.guihint]#Acknowledge#.
+
+
+[#update]
+== Update
+
+[#dry_run]
+=== Best Practices beim Update
+
+Im Folgenden beschreiben wir bewährte Vorgehensweisen (_best practices_), welche wir selbst bei Updates von großen {CMK}-Umgebungen befolgen.
+Diese sind sicherlich nicht in jeder Umgebung Pflicht, Sie können Ihnen den Prozess des Updates jedoch erleichtern.
+
+
+[#update_patch]
+==== {CMK}-Version aktualisieren
+
+Vor dem Update auf die Version {v24} muss auf der {CMK}-Instanz die Version {v23} installiert sein.
+
+Das Update auf {v24} setzt zurzeit mindestens {v23}p27 voraus.
+Es kann aber sein, dass in der Zukunft eine bestimmte {v24} Patch-Version eine höhere {v23} Patch-Version für das Update voraussetzt.
+Generell empfehlen wir, zuerst {CMK} auf die neueste {v23} Patch-Version zu aktualisieren und erst dann das Update auf die {v24} durchzuführen.
+
+
+==== Probelauf des Updates durchführen
+
+In großen Umgebungen, in denen auch das Zurückspielen eines selbstverständlich vorhandenen Backups Ihrer {CMK}-Umgebung mit einem gewissen zeitlichen Aufwand verbunden wäre, empfiehlt es sich, vor dem Update der produktiven Umgebung, einen Test mit einer geklonten Instanz durchzuführen.
+Zu diesem Zweck können Sie beispielsweise das letzte reguläre Backup Ihrer Instanz unter einem anderen Namen wiederherstellen.
+
+[{shell}]
+----
+{c-root} omd restore newsite /path/to/backup
+----
+
+*Alternativ* können Sie Ihre Instanz auch per `omd cp` kopieren.
+Dafür muss die Instanz allerdings kurzzeitig gestoppt werden:
+
+[{shell}]
+----
+{c-root} omd stop mysite
+{c-root} omd cp mysite newsite
+----
+
+Führen Sie das Update im Anschluss erst einmal auf dieser neuen geklonten Instanz durch, um hier beispielsweise die oben angesprochenen lokalen Änderungen in der neuen Umgebung zu prüfen.
+
+
+[#automatic_agent_updates]
+==== Agenten-Update vorübergehend abschalten
+
+{cee-only}
+Wenn Sie in den kommerziellen Editionen die automatischen Agenten-Updates verwenden, sollten Sie überlegen, diese vor dem Update von {CMK} vorübergehend zu deaktivieren, um den Wechsel auf die neuen Agenten bei den Hosts später kontrolliert vollziehen zu können.
+Dazu wählen Sie zuerst [.guihint]#Setup > Agents > Windows, Linux, Solaris, AIX# und auf der folgenden Seite den Menüeintrag [.guihint]#Agents > Automatic updates.#
+Durch Klick auf den Knopf icon:icon_edit[alt="Symbol zum Bearbeiten eines Listeneintrags."] vor dem [.guihint]#Master switch# können Sie das Agenten-Update komplett abschalten:
+
+image::update_major_automatic_agent_updates.png[alt="Abschaltung des Agenten-Updates per Hauptschalter."]
+
+Nach dem erfolgreichen Update von {CMK} können Sie das Agenten-Update auf gleichem Weg wieder anschalten.
+
+Wir empfehlen an dieser Stelle das automatische Agenten-Update erstmal nur für einzelne Hosts oder Host-Gruppen wieder zu aktivieren.
+Auf diese Weise wird der neue Agent nicht gleich auf all Ihre Server ausgerollt und Sie können sich auf einigen wenigen Systemen mit den neu angelieferten Daten vertraut machen.
+Auch aufgrund der deutlich gestiegenen Zahl an mitgelieferten Check-Plugins könnten Sie eine ganze Reihe neuer Services finden, welche Sie dann auf den von Ihnen gewählten Testsystemen richtig einstellen können.
+Eventuell sind für neue Services auch neue Schwellwerte vonnöten.
+Wenn Sie dies erst einmal im Kleinen angehen, ersparen Sie sich so einige Fehlalarme.
+
+Auf der oben angegebenen Seite [.guihint]#Automatic agent updates# können Sie dafür einfach ein paar Hosts oder Host-Gruppen in die entsprechenden Felder eintragen und dann den [.guihint]#Master switch# wieder aktivieren.
+
+image::update_major_activate_update_on_selected_hosts.png[alt="Optionen beim Agenten-Update zur Aktivierung auf bestimmten Hosts."]
+
+[IMPORTANT]
+====
+Denken Sie daran, diese Einschränkungen auf explizite Hosts und Host-Gruppen wieder zu entfernen, sobald Sie mit den Ergebnissen zufrieden sind.
+====
+
+
+[#notifications]
+==== Benachrichtigungen vorübergehend abschalten
+
+Sie sollten auch überlegen, xref:glossar#notification[Benachrichtigungen] in der Instanz vor dem Update abzuschalten -- aus ähnlichen Gründen, die wir im vorherigen Abschnitt zu den automatischen Agenten-Updates erklärt haben.
+So vermeiden Sie, dass Ihre Kollegen aus dem Monitoring-Team _unnötige_ Benachrichtigungen erhalten.
+
+Die Benachrichtigungen können Sie zentral im Snapin xref:user_interface#master_control[Master control] mit dem Schalter [.guihint]#Notifications# abschalten.
+
+Es kann durchaus vorkommen, dass nach dem Update der eine oder andere Service {CRIT} ist, der dies vorher nicht gewesen ist.
+Kümmern Sie sich nach dem Update zuerst um neu auftretende Probleme.
+Die unbehandelten Probleme (_unhandled problems_) können Sie sich z.B. im Snapin xref:user_interface#overview[Overview] anzeigen lassen.
+
+[IMPORTANT]
+====
+Vergessen Sie nicht, die Benachrichtigungen wieder einzuschalten, z.B. dann, wenn sich die Zahl der unbehandelten Probleme nach dem Update auf das Niveau vor dem Update eingepegelt hat.
+====
+
+
+[#update_distributed_monitoring]
+=== Update im verteilten Monitoring
+
+Es gibt zwei unterschiedliche Vorgehensweisen, um das Update aller in einem xref:glossar#distributed_monitoring[verteilten Monitoring] beteiligten Instanzen durchzuführen:
+
+* Alle Instanzen stoppen, das Update _en bloc_ durchführen und dann alle Instanzen wieder starten.
+* Unter strengen Auflagen ist ein _Mischbetrieb_ für einen gewissen Zeitraum möglich, in dem zunächst die Remote-Instanzen aktualisiert werden und zum Schluss mit dem Update der Zentralinstanz wieder Versionsgleichstand hergestellt wird.
+
+Insbesondere, wenn Sie die Aktualisierung im laufenden Betrieb anstreben, sollten Sie die Hinweise im allgemeinen Artikel zu xref:update#updatedistributed[Updates und Upgrades] lesen.
+
+
+=== Das Update durchführen
+
+Am eigentlichen Update der Software hat sich in der {CMK} {v24} nichts Grundlegendes geändert,
+d.h. Sie installieren die neue Version, führen das Update der {CMK}-Instanz durch, kümmern sich um Konflikte (falls es denn welche geben sollte) und überprüfen und bestätigen die inkompatiblen Änderungen.
+
+Führen Sie die Update-Prozedur so aus, wie sie im Artikel zu xref:update#detailed[Updates und Upgrades] beschrieben ist.
+
+
+[#follow-up]
+== Nachbereitungen
+
+[#gui]
+=== Änderungen der Benutzeroberfläche
+
+Die Benutzeroberfläche (GUI) von {CMK}, die mit Version {v20} komplett neu gestaltet wurde, hat sich auch in der {v24} nicht grundlegend verändert.
+Die generellen Abläufe, die Sie aus den Versionen {v20} bis {v23} kennen, können Sie auch in der {v24} unverändert anwenden.
+Allerdings haben sich Menüs, Menüeinträge, Symbole und andere Details geändert, um neue Funktionen verfügbar zu machen -- und bestehende zu verbessern.
+
+In den Artikeln dieses Handbuchs stellen wir Ihnen diese Änderungen vor - und im xref:intro_setup#[Leitfaden für Einsteiger] finden Sie eine ausführliche Einführung,
+unter anderem in die wichtigsten Elemente der xref:intro_gui#[Benutzeroberfläche.]
+
+
+[#service_discovery]
+=== Services aktualisieren
+
+Wie jede Hauptversion, so bringt auch {CMK} {v24} eine ganze Reihe neuer Check-Plugins mit sich.
+Sollten Sie den xref:wato_services#discovery_check[„Discovery Check“] nicht einsetzen, d.h. das automatische Update der Service-Konfiguration über die periodische Service-Erkennung, werden Sie auf einer ganzen Reihe von Hosts die Suche nach Services durchführen müssen.
+
+Wenn Ihre Hosts entsprechend organisiert sind (z.B. in Ordnern), können Sie hierfür zumeist mit der Funktion [.guihint]#Bulk discovery# arbeiten.
+Diese finden Sie unter [.guihint]#Setup > Hosts > Hosts# und dann im Menü [.guihint]#Hosts > Run bulk service discovery.#
+
+
+[#service_descriptions]
+==== Service-Namen
+// MFS: Eigentlich wäre "Service-Namen" passender, es steht aber überall "Service Description" 
+// TK: In der 2.4.0 heißen sie jetzt Service-Namen! Ich habs geändert.
+
+Jedes Update von {CMK} bedeutet, dass Service-Namen geändert werden, um die Konsistenz der Benennung innerhalb des Monitorings und der Dokumentation von {CMK} zu verbessern.
+Da die Änderung von Service-Namen bedeutet, dass mitunter Regeln angepasst werden müssen und historische Monitoring-Daten verloren gehen, belässt {CMK} bei Updates zunächst die alten Namen.
+Sie sollten bei Services, bei denen Verlust alter Monitoring-Daten zu verschmerzen und der Aufwand für die Anpassung von Regeln überschaubar ist, zeitnah auf neue Service-Namen umstellen.
+
+Gehen Sie hierfür in [.guihint]#Setup > General > Global settings > Execution of checks# die Liste [.guihint]#Use new service names# durch und identifizieren Sie die Services, bei denen die Checkboxen noch nicht aktiv sind und aktivieren Sie diese.
+Nach Anwenden der Änderungen sind die neuen Service-Namen aktiv und es werden wenige Minuten vergehen, bis Sie wieder definierte Zustände der betroffenen Services im Monitoring sehen.
+
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#agentupdatercert]
+=== Zertifikatsprüfung bei Agenten-Updates
+
+Das Verhalten des Kommandozeilenparameters `--trust-cert` des Befehls `cmk-update-agent` wurde geändert.
+Bislang wurde die gesamte Zertifikatskette geprüft und dem in der Hierarchie höchsten gefundenen selbst signierten Zertifikat vertraut, in der Regel ist dies das Root- oder ein Intermediate-Zertifikat.
+Ab {CMK} {v23} wird nur das Serverzertifikat importiert und diesem vertraut.
+
+*Betrifft Sie das?*
+Dies betrifft Sie nur, wenn Sie sich bei der Registrierung von Hosts für automatische Agenten-Updates auf `--trust-cert` verlassen und daneben kein xref:agent_deployment#connection_to_cmk_server[Zertifikat per Agentenbäckerei] bereitstellen.
+In diesem Fall verlieren ab {CMK} {v23} Hosts bereits bei Ablauf des Serverzertifikats die Vertrauensstellung, mit {CMK} {v22} registrierte Hosts erst bei Ablauf der Root- oder Intermediate-Zertifikate.
+
+*Was müssen Sie tun?*
+Wir empfehlen, zeitnah nach dem Update auf {v23} die korrekten Zertifikate per Agentenbäckerei bereitzustellen und ein Update aller Agenten durchzuführen, um so ein konsistentes Verhalten bei allen Hosts herzustellen, die den Agent Updater verwenden.
+////
+
+[#pip3post]
+=== Python-Module installieren
+
+*Betrifft Sie das?*
+Dies betrifft Sie nur, wenn Sie für selbst geschriebene oder aus der Exchange bezogene Spezialagenten oder agentenbasierte Check-Plugins explizit Python-Module nachinstalliert hatten, und diese im Zuge der Vorbereitung des Updates xref:pip3[entfernt] haben.
+
+*Was müssen Sie tun?*
+Finden Sie zunächst heraus, ob die zuvor deinstallierten Module bereits mit der neuen {CMK}-Version ausgeliefert werden, zum Beispiel:
+
+[{shell}]
+----
+{c-omd} pip3 list | grep '^cryptography'
+----
+
+Wird das Modul bereits gefunden, kennzeichnen Sie es in Ihren Notizen als nicht benötigt.
+Installieren Sie nicht mitgelieferte Module in Ihrer aktuellsten Version nach:
+
+[{shell}]
+----
+{c-omd} pip3 install ecdsa
+----
+
+Testen Sie anschließend die Check-Plugins oder Spezialagenten, die auf in der Instanz installierte Python-Module angewiesen sind.
+
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#winnet]
+=== Netzwerk-Interfaces unter Windows
+
+Bis {CMK} {v22} war der Windows-Agent auf das zusätzliche Plugin link:https://checkmk.com/de/integrations/winperf_if[Windows: State and Performance of Network Interfaces^] angewiesen, um den Status von Netzwerk-Interfaces korrekt zu übermitteln.
+Ohne Plugin war der Status immer _up_.
+Ab {CMK} {v23} kann der Agent alleine den korrekten Status übermitteln (link:https://checkmk.com/de/werk/15839[Werk pass:q[#]15839^]).
+
+*Betrifft Sie das?*
+Je nachdem, in welchem Umfang Sie das Plugin verteilt haben und ob Sie bei Hosts ohne Plugin das Monitoring des Zustands von Netzwerk-Interfaces deaktiviert haben, kann Sie das betreffen.
+Hosts, die bisher kein Plugin verwendet haben und deren Netzwerk-Interfaces ins Monitoring aufgenommen waren, werden viele Schnittstellen von _up_ nach _down_ wechseln, damit den Status {CRIT} annehmen und so Benachrichtigungen auslösen.
+
+*Was müssen Sie tun?*
+Überprüfen Sie, ob der ermittelte Zustand der betroffenen Netzwerkschnittstellen der gewünschte ist.
+Führen Sie dann für betroffene Hosts die Service-Erkennung neu durch.
+Nutzen Sie die Gelegenheit, um zunächst wenigstens für Ihre Windows-Hosts die Empfehlungen des Blog-Artikels link:https://checkmk.com/de/blog/network-monitoring-with-checkmk-2-0[Netzwerk-Monitoring mit Checkmk: 3 rules to rule them all^] umzusetzen.
+Für Windows sind die erwähnten Einstellungen in der Regel [.guihint]#Network interfaces on Windows# vorzunehmen.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#cmeccelicense]
+=== Lizenzinformationen synchronisieren
+
+Bei {CE} und {ME} mit verteiltem Setup werden mitunter beim Update keine Lizenzinformationen zu Remote-Instanzen synchronisiert.
+
+*Betrifft Sie das?*
+Falls Sie unmittelbar nach dem Update einen vollständigen Überblick über Ihre Lizenznutzung benötigen, sind Sie möglicherweise betroffen.
+Überprüfen Sie den Lizenzstatus und stoßen Sie gegebenenfalls die Synchronisierung manuell an.
+
+*Was müssen Sie tun?*
+Werfen Sie unter [.guihint]#Setup > General > Distributed Monitoring# einen Blick in die Übersicht der Remote-Instanzen und suchen Sie Instanzen, welche mit [.guihint]#License state: trial# gekennzeichnet sind.
+Um eine unmittelbare Synchronisation für diese Instanzen zu erzwingen, führen Sie unter [.guihint]#Setup > Licensing# eine Überprüfung der Lizenz durch oder speichern Sie die Lizenzeinstellungen.
+Sollte dieser Schritt vergessen werden, wird in der Regel innerhalb von sieben Tagen nach dem Update eine Synchronisierung der Lizenzdaten im Hintergrund durchgeführt.
+////
+
+[#outlook]
+== Ausblick
+
+In diesem Kapitel geht es um Themen, die nicht die aktuelle {CMK} Version {v24}, sondern eine der darauf folgenden Versionen betreffen.
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#check_http]
+=== HTTP-Check in neuer Version
+
+{CMK} {v23} enthält einen neuen aktiven Check für HTTP-Verbindungen und Zertifikate, der wesentlich performanter, robuster und besser zu konfigurieren ist, als der bisherige [.guihint]#Check HTTP service#.
+Zudem ist es mit einer einzigen Regel nun möglich, mehrere Dinge auf einmal zu überwachen, beispielsweise HTTP Response Code, Antwortzeit und Zertifikatsgültigkeit.
+
+Den neuen [.guihint]#Check HTTP web service# finden Sie unter [.guihint]#Setup > Services > HTTP, TCP, Email, ...# im Kasten [.guihint]#Networking.# 
+Er wird mittelfristig den alten [.guihint]#Check HTTP service# komplett ablösen, den Sie auf der gleichen Seite finden können.
+Aus diesem Grund raten wir dazu, beim Neuanlegen von Hosts den bisherigen Check (intern: `check_http`) nicht mehr zu verwenden und Hosts im Bestand nach und nach auf den neuen Check (intern: `check_httpv2`) zu migrieren.
+
+Ein Migrationsskript wird im späteren Verlauf des Lifecycle von {CMK} {v23} bereitgestellt werden. Allerdings ist eine komplett automatisierte Migration tendenziell schwierig, weil bei vielen Hosts Regeln von zwei Checks zusammengeführt werden müssen, um von der verbesserten Effizienz zu profitieren.
+
+Weitere Informationen finden Sie in den beiden Werks link:https://checkmk.com/de/werk/15514[pass:q[#]15514^] und link:https://checkmk.com/de/werk/15515[pass:q[#]15515^].
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#check_cert]
+=== Neuer Check für Zertifikate
+
+Basisfunktionalität für die Prüfung von Zertifikaten enthielt der bisherige [.guihint]#Check HTTP service# und der im vorherigen Abschnitt erwähnte   neue [.guihint]#Check HTTP web service# verbessert sie noch einmal.
+Allerdings haben beide einige Gemeinsamkeiten:
+Zunächst sind sie eben nur anwendbar, wenn ein Zertifikat an einem HTTPS-Endpunkt verwendet wird, zudem fehlt die Möglichkeit einer detaillierten Untersuchung der Zertifikate beispielsweise auf enthaltene _Certificate Subject Alternative Names_ oder die ausstellende Stelle.
+
+Die hieraus resultierenden Nutzerwünsche haben wir mit dem neuen [.guihint]#Check certificates# (intern: `check_cert`) umgesetzt.
+Alle Einstellungen des neuen Checks finden Sie ebenfalls unter [.guihint]#Setup > Services > HTTP, TCP, Email, ...# im Kasten [.guihint]#Networking.# 
+
+Weitere Informationen finden Sie im link:https://checkmk.com/de/werk/15516[Werk pass:q[#]15516^].
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#outlook_newapi]
+=== Programmierschnittstellen
+
+Nach {CMK} Version {v23} werden nur noch die wohl spezifizierten APIs zur Programmierung von Check-Plugins, Spezialagenten, Graphing, etc. unterstützt werden.
+Die Änderungen betreffen die Verzeichnisstruktur, Erkennung der Plugins (_Discovery_ statt _Registry_) und natürlich die Funktionen und Objekte der APIs selbst.
+Einen Überblick über die größten Änderungen liefert link:https://checkmk.com/de/werk/16259[Werk pass:q[#]16259^].
+
+Da die bisherigen APIs ab {CMK} {v24} nicht mehr unterstützt werden, müssen bis zum Update auf {v24} alle Plugins, welche die älteren APIs nutzen, auf die neuen APIs migriert sein.
+////
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#mk_sql]
+=== Verbessertes Microsoft SQL Server Monitoring
+
+Für das Monitoring von Microsofts SQL Server steht mit {CMK} {v23} ein neues xref:glossar#agent_plugin[Agentenplugin] zur Verfügung.
+Sie finden es unter [.guihint]#Setup > Agents > Windows, Linux, Solaris, AIX > Agent rules > Microsoft SQL Server (Linux, Windows).#
+Dieses ist in Rust implementiert und ersetzt langfristig das bisherige, in VBScript geschriebene.
+Lauffähig ist das neue Plugin unter Linux und Windows auf der x86/64-Plattform.
+Zudem bietet es eine erhöhte Flexibilität durch lokales und Remote-Monitoring unter Windows und Remote-Monitoring unter Linux.
+Selbstverständlich können Sie eine lokal unter Linux laufende MS SQL Datenbank unter Verwendung der TCP/IP-Schnittstelle überwachen.
+
+Die Konfigurierbarkeit wurde deutlich verbessert.
+So können Sie nun wählen, welche Sektionen geprüft werden sollen und eigene SQL-Statements hinzufügen.
+Des weiteren können Sie nun mit _einem_ Plugin Datenbanken auf verschiedenen Hosts überwachen.
+Damit dies übersichtlich bleibt, ist über den xref:glossar#piggyback[Piggyback]-Mechanismus die Zuordnung zu anderen Hosts möglich.
+Die Konfiguration erfolgt per YAML-Datei.
+Hier sind die stabilen Optionen per Regeln der Agentenbäckerei verfügbar.
+Weitere Einstellungen, bei denen wir uns Modifikationen vorbehalten, können Sie per Editor konfigurieren.
+Details erfahren Sie in link:https://checkmk.com/de/werk/15842[Werk pass:q[#]15842^].
+
+Mit der Einführung des neuen Agentenplugins startet die Abkündigung des alten Agentenplugins [.guihint]#Microsoft SQL Server (Windows)#.
+In {CMK} {v23} erhalten Sie lediglich Hinweise auf die Verwendung eines veralteten Regelsatzes.
+Ab {v24} wird es nicht mehr möglich sein, neue Regeln anzulegen und mit {v25} wird das alte Plugin voraussichtlich aus {CMK} entfernt werden.
+Weitere Informationen liefert link:https://checkmk.com/de/werk/15844[Werk pass:q[#]15844^].
+////
+
+// MFS: Check state of Redfish integration etc. and rewrite if necessary.
+[#management_board]
+=== Management Boards
+
+Die Bezeichnung _Management Board_ steht für separate Steckkarten oder erweiterte BIOS-Funktionalität (Baseboard Management Controller/BMC, Management Engine/ME, Lights Out Management/LOM) zur Überwachung und Verwaltung der Hardware neben dem installierten Betriebssystem.
+
+Bis {CMK} {v24} können Management Boards auf zwei Arten konfiguriert werden: 
+Als Eigenschaft eines Hosts oder als separater Host.
+Da die Konfigurierbarkeit als Eigenschaft eines Hosts sehr limitiert ist, wird diese Möglichkeit künftig wegfallen.
+// TK: Folgenden Satz umformuliert und Werk hinzugefügt
+Die Unterstützung von Redfish kompatiblen Management Boards wird eingebaut und verbessert werden, zunächst in {CMK} {v23} als optional zu aktivierendes MKP (link:https://checkmk.com/de/werk/16589[Werk pass:q[#]16589^]) und als Bestandteil der {CMK}-Software in Version {v24} (link:https://checkmk.com/de/werk/17404[Werk pass:q[#]17404^]).
+Hintergründe und Alternativen erläutern wir im Blog-Artikel link:https://checkmk.com/blog/monitoring-management-boards[Monitoring management boards.^]
+
+
+// MFS: From 2.3.0, keep as placeholder for similar topics.
+////
+[#automation_login]
+=== Authentifizierung per GET-Parameter
+
+Bis {CMK} {v22} konnte jeder xref:glossar#automation_user[Automationsbenutzer] mit per GET-Parameter übergebenen Benutzernamen und Passwort angemeldet werden.
+Diese Möglichkeit wird ab {CMK} {v23} zurückgefahren und schließlich ganz abgeschafft (link:https://checkmk.com/de/werk/16223[Werk pass:q[#]16223^]).
+Mittelfristig müssen Sie daher Ihre Skripte auf Authentifizierung per HTTP-Header umstellen.
+
+Zunächst macht {v23} die Möglichkeit des Logins per GET-Parameter konfigurierbar.
+Die globale Einstellung [.guihint]#Enable automation user authentication via HTTP parameters# wird jedoch zunächst als Standard [.guihint]#enabled# verwenden.
+In {CMK} {v24} wird der Standard dann zu [.guihint]#disabled# wechseln.
+Schließlich wird die Möglichkeit des Logins per GET-Parameter mit {CMK} {v25} ganz wegfallen.
+////
+

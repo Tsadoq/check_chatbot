@@ -1,0 +1,257 @@
+// -*- coding: utf-8 -*-
+// IGNORE Fettung Konsolensitzungen Neute Zeile1 dicktengleichem escapen gefetteter letten © ™ → Lorem accusam aliquyam amet clita consetetur dolore dolores eirmod elitr eos erat gubergren invidunt ipsum justo kasd labore magna nonumy rebum sadipscing sanctus sed takimata tempor vero voluptua 0p1 0p11 0p13 0p16 0p29 0p31 0p7 Hirsuite Redhat Xerus
+include::global_attr.adoc[]
+= Referenzartikel
+:revdate: 2023-06-29
+:title: Referenzartikel
+:description: In diesem Referenzartikel werden alle Formatierungselement einmal verwendet.
+
+{related-start}
+xref:wato_monitoringagents#[Monitoring-Agenten]
+xref:datasource_programs#[Datenquellenprogramme]
+{related-end}
+
+
+[#intro]
+== Einleitung
+
+[#intro2]#Dieser# Referenzartikel enthält Beispiele für alle (AsciiDoc-)Formatierungen, die wir im {CMK}-Handbuch verwenden.
+Alle Erläuterung zu deren Verwendung finden sich im link:https://docs.google.com/document/d/1S948ptXcQ6Bbncs00ZENvmAXXD1GSSmLkmvnK7pts0U/edit?usp=sharing[Dokumentationsleitfaden.^]
+
+[#ueberschriften]
+== Kapitelüberschrift
+
+=== Überschrift eines Abschnitts (Level 2)
+
+==== Überschrift eines Abschnitts (Level 3)
+
+==== Überschrift eines weiteren Abschnitts (Level 3)
+
+=== Überschrift eines weiteren Abschnitts (Level 2)
+
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+[#textauszeichnung]
+== Textauszeichnung
+
+Eine Mischung _kursiver,_ *gefetteter,* und `dicktengleicher` Schrift gefolgt von einem [.guihint]#GUI-Hint.#  
+
+
+[#anfuehrungszeichen]
+== Anführungszeichen
+
+„Dieser deutschsprachige Text wird von schönen doppelten Anführungszeichen umgeben.“
+
+'This english sentence is enclosed by apostrophes.'
+
+[#sonderzeichen]
+== Sonderzeichen
+
+Hier folgen alle Sonderzeichen, die so im {CMK}-Handbuch erlaubt sind:
+&#8230; (TM) (C) und ein paar geschützte {nbsp}{nbsp}{nbsp}{nbsp}{nbsp}{nbsp}{nbsp} Leerzeichen.
+
+[#makros]
+== Text- und Bild-Makros
+
+Hier folgen alle Text- und Bildmakros, die im {CMK}-Handbuch verwendet werden können:
+
+{OK} {WARN} {CRIT} {PEND} {UNKNOWN} {UP} {DOWN} {UNREACH}
+
+{CMK} gibt es in den folgenden unterschiedlichen Editionen: {CRE}, {CSE}, {CCE} und {CME}
+
+Das ganze gibt es auch noch mal in Kurzform ohne Fettung und Icons:
+{RE}, {SE}, {CE} und {ME}
+
+Als Abgrenzung zur {RE} werden die anderen drei Editionen als kommerzielle Editionen (_commercial editions_) bezeichnet.
+Für die kommerziellen Editionen gibt es _kein_ Makro!
+
+//SK: Hier ist noch die Vorschau in VSCode kaputt.
+Und hier nur die Bildmarken ohne Text
+{cee-only} {cre-only}
+
+
+[#aufzaehlungen]
+== Aufzählungen und Listen
+
+. Nummerierte Listen.
+. gibt es.
+. im Handbuch natürlich.
+
+// Der Kommentar und die beiden Leerzeilen darüber und darunter müssen hier leider rein, damit die Listen getrennt bleiben.
+
+* genauso, wie.
+* nicht nummerierte.
+
+// Noch ein Trenner
+
+Description Lists:: gibt es im Handbuch auch.
+Das CSS:: dafür muss noch angepasst werden.
+
+[#links]
+== Verweise
+
+Ein Verweis zur xref:intro[Einleitung] hier oben im Artikel.
+Der Anker für diesen Verweis heißt `pass:[[#intro]]` und ist vor der Überschrift definiert.
+
+Ein weiterer Verweis zur xref:intro2[Einleitung], wobei hier ein anderer Anker als Ziel genutzt wird.
+Der Anker heißt `pass:[[#intro2]]` und ist für das 1. Wort des 1. Absatzes der Einleitung gesetzt in folgender Syntax: `pass:[[#intro2]]pass:[#Dieser#]`
+
+Ein Verweis zu einem xref:agent_linux#[anderen Artikel im Handbuch].
+
+Ein Verweis zu einem xref:agent_linux#disabled_sections[bestimmten Anker in einem anderen Artikel im Handbuch].
+
+Ein Verweis auf eine Webseite außerhalb von docs.checkmk.com.
+Ich verlinke mal die letten Neute von link:https://checkmk.com/[Checkmk.^]
+
+== Aktionsknöpfe
+
+In {CMK} kann man über den Knopf icon:icon_new[alt="Symbol zum Erstellen eines Hosts."] [.guihint]#Add host# Hosts anlegen.
+
+[#tabellen]
+== Tabellen
+
+[cols=3]
+|===
+|Spalte 1 |Spalte 2 |Spalte 3 (2)
+|Zeile 1.1 |Zeile 1.2 |Zeile 1.3 (3)
+|Noch eine Zeile||
+|===
+
+[cols="10,~,~,20",options="header"]
+|===
+| Header 1
+| Header 2
+| Header 3
+| Header 4
+| Zelle 21
+| Zelle 22
+| Zelle 23
+| Zelle 24
+|===
+
+[cols="10,~,~,20",frame="none",grid="none"]
+|===
+| Header 1
+| Header 2
+| Header 3
+| Header 4
+| Zelle 21
+| Zelle 22
+| Zelle 23
+| Zelle 24
+|===
+
+
+[#bilder]
+== Bilder, Alt-Texte und Bildunterschriften
+
+.die Bildunterschrift
+image::wato_rules_setup_service_list.png[alt="Bild der Service-Discovery, mit einem Highlight um ein paar Knöpfe."]
+
+
+[#konsolensitzungen]
+== Konsolensitzungen
+
+=== shell
+
+[{shell}]
+----
+{c-root} su - mysite
+{c-omd} omd status
+liveproxyd:     [red]#stopped#
+rrdcached:      [green]#running#
+cmcrushd:       [green]#running#
+cmc:            [red]#stopped#
+apache:         [green]#running#
+crontab:        [green]#running#
+-----------------------
+Overall state:  [yellow]#partially running#
+{c-omd} exit
+{c-root} sudo su - central
+{c-local}
+{c-root} \https://checkmk.com
+{c-root} https://checkmk.com
+----
+
+=== shell-raw
+
+[{shell-raw}]
+----
+{c-root} su - mysite
+{c-omd} omd status
+liveproxyd:     [red]#stopped#
+rrdcached:      [green]#running#
+cmcrushd:       [green]#running#
+cmc:            [red]#stopped#
+apache:         [green]#running#
+crontab:        [green]#running#
+-----------------------
+Overall state:  [yellow]#partially running#
+{c-omd} exit
+{c-root} sudo su - central
+{c-local}
+{c-root} \https://checkmk.com
+{c-root} https://checkmk.com
+----
+
+
+== Dateiinhalte
+
+.~/var/log/cmc.log
+[{file}]
+----
+2016-02-24 16:30:48 [5] Successfully initiated connection to Carbon/Graphite
+2016-02-24 16:32:57 [4] Connection to Carbon/Graphite at 10.0.0.5:2003 failed
+2016-02-24 16:32:57 [5] Closing connection to Carbon/Graphite
+----
+
+.~/var/log/cmc_mitHighlight.log
+[{file},highlight=2..3]
+----
+2016-02-24 16:30:48 [5] Successfully initiated connection to Carbon/Graphite
+2016-02-24 16:32:57 [4] Connection to Carbon/Graphite at 10.0.0.5:2003 failed
+2016-02-24 16:32:57 [5] Closing connection to Carbon/Graphite
+2016-02-24 16:32:57 [5] Something else concerning Carbon/Graphite
+----
+
+
+== Seltsames Zeug escapen
+
+Ein Sternchen innerhalb von dicktengleichem Text -> `pass:[.*]temp`
+
+Eckige Klammern innerhalb einer URL innerhalb von dicktengleichem Text -> `\http://myserver/mysite/check_mk/host_inv_api.py?request={"hosts":\pass:[[]"myhost","myhost2"pass:[]]}&output_format=json`
+
+Oder doch besser so? -> `\http://myserver/mysite/check_mk/host_inv_api.py?request={"hosts":&#91;"myhost","myhost2"&#93;}&output_format=json`
+
+Eine URL, die nicht zum Link werden soll -> \https://checkmk.com
+
+
+== In bester Gesellschaft...
+
+Da künftig vielleicht keine Umbenennung mehr droht, aber möglicherweise eine Änderung der Schreibweise oder wir werden Kommanditgesellschaft auf Aktien, hier der Firmenname in Kurzform: {com} und hier in Langform: {comfull}.
+
+== Tipps und Warnungen...
+
+Tipps und Warnungen kennt Asciidoc als _Admonitions_ – und davon ziemlich viele mit einigen Überschneidungen.
+Wir haben uns entschieden, zunächst zwei zu unterstützen.
+Sollten mehr benötigt werden, ist das Stylesheet anzupassen und ein Icon zu suchen.
+
+[TIP]
+====
+Der Typ `pass:[[TIP]]` wird für Tipps und Anmerkungen wie Hintergrundinformationen verwendet.
+Wir heben ihn nur durch einen Kasten in der Farbe `lightgray` leicht hervor, dass er den Lesefluß nicht zu sehr stört.
+Als Breite wird die volle Breite der Mittelspalte verwendet.
+// Quelle des Icons: Inhouse, erstellt durch Tanja H.
+====
+
+Und der zweite Typ ist:
+
+[IMPORTANT]
+====
+Der Typ `pass:[[IMPORTANT]]` warnt: Achtung, wenn Du hier einen Fehler machst, funktioniert nachher etwas nicht.
+Da wir ein Softwareanbieter sind, ist kein Problem irreversibel, denn es gilt:
+No backup, no mercy!
+Aus diesem Grund benötigen wir keinen weiteren, rot ausgezeichneten Typen, der auf die Gefahr hoher Schäden bei Nichtbeachtung verweist.
+// Quelle des Icons: https://uxwing.com/caution-icon/
+// Lizenz: https://uxwing.com/license/
+====

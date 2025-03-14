@@ -1,0 +1,20 @@
+// -*- coding: utf-8 -*-
+// REDIRECT-PERMANENT appliance_install_virt1
+include::global_attr.adoc[]
+= Installation of a virtual appliance
+:revdate: 2021-07-05
+:title: Installation of a virtual appliance
+:description: The virtual appliance makes setting up {CMK} even easier. The installation is done by importing into VirtualBox or VMware ESXi.
+
+
+== Restructured content
+
+This article has been moved.
+You will now be redirected to the current article xref:appliance_install_virt1#[Installation of the virtual appliance].
+
+++++
+<script>
+var newurl = window.location.href.replace('introduction_virt1.html', 'appliance_install_virt1.html');
+window.location.replace(newurl);
+</script>
+++++

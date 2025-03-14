@@ -1,0 +1,22 @@
+// -*- coding: utf-8 -*-
+// REDIRECT-PERMANENT rest_api
+include::global_attr.adoc[]
+= Command reference for the HTTP-API
+:revdate: 2023-02-20
+:title: Command reference for the HTTP-API
+:description: This article describes all options to configure {CMK} via HTTP-API (or Web-API) and thus extends the introductory article on Web-API.
+
+
+== New content
+
+The Web API (also called HTTP API) has been removed from {CMK} with version {v22}.
+The Web API is replaced by the REST API.
+You will be redirected to the current article xref:rest_api#[The {CMK} REST API].
+
+
+++++
+<script>
+var newurl = window.location.href.replace('web_api_references.html', 'rest_api.html');
+window.location.replace(newurl);
+</script>
+++++

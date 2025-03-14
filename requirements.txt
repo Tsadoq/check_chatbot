@@ -1,0 +1,8 @@
+chromadb~=0.6.3
+pandas~=2.2.2
+openai~=1.66.2
+tqdm~=4.67.1
+python-dotenv~=1.0.1
+haystack-ai~=2.11.0
+pydantic~=2.10.6
+fastapi[standard]~=0.115.11

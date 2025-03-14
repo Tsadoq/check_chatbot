@@ -1,0 +1,14 @@
+>>>>PROVIDER>>>> AllNET
+>>>>INTEGRATION_NAME>>>> Humidity Sensors
+>>>>LICENSE>>>> GPLv2
+
+Checks Humidity Sensors in ALLNET IP Sensoric devices.
+You can configure lower and upper levels for CRIT and WARN (default: WARN: 40, 60 CRIT: 35, 65)
+
+The service goes WARN or CRIT if the humidity in percent is higher than given upper levels or lower than the given lower levels. Otherwise it returns OK.
+
+# Item
+If a name is reported for the sensor by the device: The name and the sensor ID. Otherwise the sensor ID only.
+
+# Discovery
+One service is created for every humidity sensor (function = 2).
