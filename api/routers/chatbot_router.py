@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter
 
 from api.dependencies import hermes_service
-from api.schemas.chat_schemas import ChatResp, ChatReq
+from api.schemas.chat_schemas import ChatReq, ChatResp
 
 logger = logging.getLogger(__name__)
 chatbot_router = APIRouter(prefix='/chatbot')

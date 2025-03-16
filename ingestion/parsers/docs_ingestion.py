@@ -1,7 +1,7 @@
-import os
 import glob
+import os
 import re
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import pandas as pd
 from tqdm.auto import tqdm

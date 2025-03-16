@@ -1,13 +1,12 @@
-import hashlib
 import os
-from typing import List, Dict, Any, Callable
+from typing import Any, Callable, Dict, List
 
 import chromadb
+import chromadb.utils.embedding_functions as embedding_functions
 import pandas as pd
 from chromadb.api.models import Collection
-import chromadb.utils.embedding_functions as embedding_functions
 from chromadb.errors import InvalidCollectionException
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
 

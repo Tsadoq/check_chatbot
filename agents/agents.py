@@ -1,6 +1,6 @@
 from typing import List
 
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.tools import Tool
 from haystack_experimental.components.agents import Agent

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from api.routers.chatbot_router import chatbot_router
 from api.schemas.generic_schemas import HealthResponse
 

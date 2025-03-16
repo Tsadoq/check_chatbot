@@ -1,4 +1,5 @@
 import os
+
 from tqdm import tqdm
 
 from db_service.db_service import DataBaseService
