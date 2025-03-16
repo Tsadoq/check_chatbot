@@ -4,7 +4,6 @@ from agents.agents import return_check_mk_helper_agent
 from agents.tools import return_search_tools
 from db_service.db_service import DataBaseService
 from ingestion.embedders.openai_embedder import OpenAIEmbedder
-from ingestion.ingestor_service import IngestorService
 
 
 class HermesService:
